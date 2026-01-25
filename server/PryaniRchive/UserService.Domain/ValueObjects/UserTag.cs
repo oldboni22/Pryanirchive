@@ -2,7 +2,7 @@ using System.Security.Cryptography;
 
 namespace UserService.Domain.ValueObjects;
 
-public record UserTag
+public sealed record UserTag
 {
     private const int Size = 8;
     

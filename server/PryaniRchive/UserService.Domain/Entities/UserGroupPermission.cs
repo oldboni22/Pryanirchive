@@ -3,7 +3,7 @@ using UserService.Domain.Enums;
 
 namespace UserService.Domain.Entities;
 
-public class UserGroupPermission : EntityWithTimestamps
+public sealed class UserGroupPermission : EntityWithTimestamps
 {
     public Guid FileGroupId { get; init; }
     

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AuthService.Infrastructure.Data;
 
-public class AuthServiceDbContext(DbContextOptions options) : DbContext(options)
+public sealed class AuthServiceDbContext(DbContextOptions options) : DbContext(options)
 {
     public DbSet<AuthenticationCredentials>  AuthenticationCredentials { get; init; }
     

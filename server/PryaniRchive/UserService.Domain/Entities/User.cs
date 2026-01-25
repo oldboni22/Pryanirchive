@@ -3,7 +3,7 @@ using UserService.Domain.ValueObjects;
 
 namespace UserService.Domain.Entities;
 
-public class User : EntityWithTimestamps
+public sealed class User : EntityWithTimestamps
 {
     public required string Name { get; set; }
     

@@ -11,7 +11,7 @@ file static class Constraints
     public const int MaxDeviceIdLength = 256;
 }
 
-public class UserSessionConfig : IEntityTypeConfiguration<UserSession>
+public sealed class UserSessionConfig : IEntityTypeConfiguration<UserSession>
 {
     public void Configure(EntityTypeBuilder<UserSession> builder)
     {

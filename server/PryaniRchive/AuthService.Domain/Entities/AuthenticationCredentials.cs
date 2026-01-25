@@ -24,14 +24,16 @@ public sealed class AuthenticationCredentials
         };
     }
     
-    public Result<HashedString> UpdatePassword(HashedString newPassword, string input)
+    public Result<HashedString> UpdatePassword(string input)
     {
         if (Password.Verify(input))
         {
             return Result.Failure<HashedString>(DomainErrors.RepeatedPassword);
         }
 
+        var newPassword = HashedString.Hash(input);
+        
         Password = newPassword;
-        return Result.Success(newPassword);
+        return newPassword;
     }
 }

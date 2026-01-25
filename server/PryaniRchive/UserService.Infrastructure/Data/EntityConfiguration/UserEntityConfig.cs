@@ -12,7 +12,7 @@ file static class Constraints
     public const int TagLength = 8;
 }
 
-public class UserEntityConfig : IEntityTypeConfiguration<User>
+public sealed class UserEntityConfig : IEntityTypeConfiguration<User>
 {
     public void Configure(EntityTypeBuilder<User> builder)
     {

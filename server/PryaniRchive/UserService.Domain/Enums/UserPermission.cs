@@ -4,4 +4,5 @@ public enum UserPermission
 {
     Read = 0,
     Upload = 1,
+    Owner = 2
 }

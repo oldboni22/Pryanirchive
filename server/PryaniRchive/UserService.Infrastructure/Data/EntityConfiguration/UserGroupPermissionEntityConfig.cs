@@ -4,7 +4,7 @@ using UserService.Domain.Entities;
 
 namespace UserService.Infrastructure.Data.EntityConfiguration;
 
-public class UserGroupPermissionEntityConfig : IEntityTypeConfiguration<UserGroupPermission>
+public sealed class UserGroupPermissionEntityConfig : IEntityTypeConfiguration<UserGroupPermission>
 {
     public void Configure(EntityTypeBuilder<UserGroupPermission> builder)
     {

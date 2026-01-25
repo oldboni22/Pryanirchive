@@ -4,7 +4,7 @@ using Common.Data;
 
 namespace AuthService.Domain.Entities;
 
-public class UserSession: EntityBase
+public sealed class UserSession: EntityBase
 {
     public Guid UserId { get; init; }
 
