@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using System.Text;
 using Common.Data;
 
 namespace AuthService.Domain.Entities;
@@ -32,7 +33,7 @@ public class UserSession: EntityBase
     
     private static string HashToken(string input)
     {
-        var bytes = System.Text.Encoding.UTF8.GetBytes(input);
+        var bytes = Encoding.UTF8.GetBytes(input);
         return Convert.ToHexString(SHA256.HashData(bytes));
     }
 }
