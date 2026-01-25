@@ -1,5 +1,3 @@
-using System;
-
 namespace Common.Data;
 
 public abstract class EntityWithTimestamps : EntityBase

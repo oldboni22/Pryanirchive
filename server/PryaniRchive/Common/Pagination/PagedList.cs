@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace Common.Pagination;
 
 public record PagedList<T>(List<T> Items, int PageNumber, int PageSize, int PageCount, int TotalCount)

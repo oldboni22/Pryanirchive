@@ -1,5 +1,4 @@
 ﻿using AuthService.Domain.ValueObjects;
-using Common.Data;
 
 namespace AuthService.Domain.Entities;
 
