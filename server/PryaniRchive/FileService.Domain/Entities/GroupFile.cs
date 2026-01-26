@@ -13,7 +13,7 @@ public sealed class GroupFile : EntityWithTimestamps
     
     public long FileSize { get; set; }
     
-    public string FileUrl {get; set;}
+    public FileBlobId FileBlobId {get; set;}
     
     public FileName FileName { get; private set; }
 
@@ -31,13 +31,19 @@ public sealed class GroupFile : EntityWithTimestamps
         return nameResult;
     }
     
-    public static Result<GroupFile> Create(string name, FileGroup group, string fileUrl, long fileSize)
+    public static Result<GroupFile> Create(string name, FileGroup group, long fileSize)
     {
         var nameResult = FileName.Create(name);
 
         return nameResult.IsSuccess
-            ? new GroupFile 
-                { GroupId = group.Id, FileName = nameResult, FileSize = fileSize, FileUrl = fileUrl, OwnerId =  group.OwnerId }
+            ? new GroupFile
+            {
+                GroupId = group.Id, 
+                FileName = nameResult, 
+                FileSize = fileSize, 
+                FileBlobId = FileBlobId.Create(name), 
+                OwnerId =  group.OwnerId
+            }
             : nameResult.Error;
     }
 }

@@ -7,7 +7,7 @@ namespace FileService.Infrastructure.Data.EntityConfiguration;
 
 file static class Constraints
 {
-    public const int FileUrlMaxLength = 500;
+    public const int BlobFileIdMaxLength = 500;
 }
 
 public sealed class GroupFileEntityConfig : IEntityTypeConfiguration<GroupFile>
@@ -22,14 +22,20 @@ public sealed class GroupFileEntityConfig : IEntityTypeConfiguration<GroupFile>
                 value => FileName.FromDatabase(value))
             .HasMaxLength(FileName.MaxFileNameLength)
             .IsRequired();
+
+        builder.Property(f => f.FileBlobId)
+            .HasConversion(
+                v => v.Value,
+                value => FileBlobId.FromDatabase(value))
+            .HasMaxLength(FileBlobId.MaxLength);
         
         builder.HasOne(f => f.FileGroup)
             .WithMany(g => g.Files)
             .HasForeignKey(f => f.GroupId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.Property(f => f.FileUrl)
-            .HasMaxLength(Constraints.FileUrlMaxLength);
+        builder.Property(f => f.FileBlobId)
+            .HasMaxLength(Constraints.BlobFileIdMaxLength);
         
         builder.HasIndex(f => new {f.GroupId, f.FileName, })
             .IsUnique();
