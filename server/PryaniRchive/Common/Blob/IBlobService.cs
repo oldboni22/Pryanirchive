@@ -2,13 +2,13 @@ namespace Common.Blob;
 
 public interface IBlobService
 {
-    Task<bool> UploadFileAsync(Stream fileStream, string fileName, string contentType);
+    Task<string?> UploadFileAsync(Stream fileStream, string fileBlobId, string contentType, CancellationToken cancellationToken = default);
     
-    Task<string?> GetFileLinkAsync(string fileName);
+    Task<string?> GetFileLinkAsync(string fileBlobId, CancellationToken cancellationToken = default);
     
-    Task<FileOutput?> GetFileAsync(string fileName);
+    Task<FileOutput?> GetFileAsync(string fileBlobId, CancellationToken cancellationToken = default);
     
-    Task DeleteFileAsync(string fileName);
+    Task DeleteFileAsync(string fileBlobId, CancellationToken cancellationToken = default);
 
-    Task EnsureStorageExists();
+    Task EnsureStorageExists(CancellationToken cancellationToken = default);
 }
