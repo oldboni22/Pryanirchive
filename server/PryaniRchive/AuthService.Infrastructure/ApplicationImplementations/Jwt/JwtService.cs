@@ -7,8 +7,6 @@ using Common.ResultPattern;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
-// Assuming Result is here
-
 namespace AuthService.Infrastructure.ApplicationImplementations.Jwt;
 
 public class JwtService(IOptions<JwtServiceOptions> options) : IJwtService
@@ -54,8 +52,6 @@ public class JwtService(IOptions<JwtServiceOptions> options) : IJwtService
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(key),
             
-            // This is the "magic" for the refresh flow:
-            // We verify the signature is ours, but ignore the expiration date.
             ValidateLifetime = false 
         };
 
