@@ -27,6 +27,7 @@ public sealed class AuthenticationCredentialsConfig : IEntityTypeConfiguration<A
             .HasConversion(
                 password => password.Value,
                 value => HashedString.FromDatabase(value))
-            .IsRequired();;
+            .IsRequired()
+            .HasMaxLength(HashedString.TotalLength);
     }
 }

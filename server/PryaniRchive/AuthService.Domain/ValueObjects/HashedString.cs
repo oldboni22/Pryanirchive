@@ -4,6 +4,8 @@ namespace AuthService.Domain.ValueObjects;
 
 public sealed record HashedString
 {
+    public const int TotalLength = SaltSize + HashSize;
+    
     private const int SaltSize = 16;
     
     private const int HashSize = 32; 
