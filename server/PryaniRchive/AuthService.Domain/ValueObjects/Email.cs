@@ -4,13 +4,15 @@ namespace AuthService.Domain.ValueObjects;
 
 public sealed record Email
 {
+    public const int MaxLength = 255;
+    
     public string Value { get; init; }
     
     private Email(string value) => Value = value;
 
     public static Result<Email> Create(string value)
     {
-        if (string.IsNullOrWhiteSpace(value))
+        if (string.IsNullOrWhiteSpace(value) &&  value.Length > MaxLength)
         {
             return Result.Failure<Email>(DomainErrors.InvalidEmail);
         }

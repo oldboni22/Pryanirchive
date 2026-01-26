@@ -5,11 +5,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace AuthService.Infrastructure.Data.EntityConfiguration;
 
-file static class Constraints
-{
-    public const int MailMaxLength = 256;
-}
-
 public sealed class AuthenticationCredentialsConfig : IEntityTypeConfiguration<AuthenticationCredentials>
 {
     public void Configure(EntityTypeBuilder<AuthenticationCredentials> builder)
@@ -23,7 +18,7 @@ public sealed class AuthenticationCredentialsConfig : IEntityTypeConfiguration<A
                 mail => mail.Value,
                 value => Email.FromDatabase(value))
             .IsRequired()
-            .HasMaxLength(Constraints.MailMaxLength);
+            .HasMaxLength(Email.MaxLength);
         
         builder.HasIndex(e => e.Mail)
             .IsUnique();
