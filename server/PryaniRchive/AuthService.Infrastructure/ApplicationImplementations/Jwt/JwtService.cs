@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using AuthService.Application.Contracts;
 using AuthService.Domain;
+using Common.Authentication;
 using Common.ResultPattern;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;

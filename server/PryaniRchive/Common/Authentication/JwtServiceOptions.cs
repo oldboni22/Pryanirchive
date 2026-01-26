@@ -1,4 +1,4 @@
-namespace AuthService.Infrastructure.ApplicationImplementations.Jwt;
+namespace Common.Authentication;
 
 public class JwtServiceOptions
 {
