@@ -6,7 +6,7 @@ using Minio;
 using Minio.DataModel.Args;
 using Minio.Exceptions;
 
-namespace AuthService.Infrastructure.Blob.MinIo;
+namespace FileService.Infrastructure.Blob.MinIo;
 
 public class MinIoBlobService(IMinioClient client, IOptions<MinIoBlobOptions> options) : IBlobService
 {

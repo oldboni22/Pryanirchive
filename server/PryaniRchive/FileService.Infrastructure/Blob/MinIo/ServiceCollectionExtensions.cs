@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Minio;
 
-namespace AuthService.Infrastructure.Blob.MinIo;
+namespace FileService.Infrastructure.Blob.MinIo;
 
 public static class ServiceCollectionExtensions
 {
