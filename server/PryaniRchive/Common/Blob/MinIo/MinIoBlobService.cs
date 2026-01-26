@@ -112,7 +112,7 @@ public class MinIoBlobService(IMinioClient client, IOptions<MinIoBlobOptions> op
         }
         catch(MinioException )
         {
-            
+            throw;
         }
     }
 }
