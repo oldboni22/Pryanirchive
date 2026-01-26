@@ -1,4 +1,4 @@
-namespace Common.Blob;
+namespace FileService.Application.Contracts.Blob;
 
 public class FileOutput
 {

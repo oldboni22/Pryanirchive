@@ -1,6 +1,6 @@
 using Common.ResultPattern;
 
-namespace Common.Blob;
+namespace FileService.Application.Contracts.Blob;
 
 public static class BlobErrors
 {

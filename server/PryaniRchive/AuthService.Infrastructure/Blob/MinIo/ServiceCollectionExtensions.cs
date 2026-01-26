@@ -1,8 +1,10 @@
+using Common.Blob.MinIo;
+using FileService.Application.Contracts.Blob;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Minio;
 
-namespace Common.Blob.MinIo;
+namespace AuthService.Infrastructure.Blob.MinIo;
 
 public static class ServiceCollectionExtensions
 {

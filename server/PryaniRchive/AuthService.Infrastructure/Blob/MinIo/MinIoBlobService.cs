@@ -1,10 +1,12 @@
+using Common.Blob.MinIo;
 using Common.ResultPattern;
+using FileService.Application.Contracts.Blob;
 using Microsoft.Extensions.Options;
 using Minio;
 using Minio.DataModel.Args;
 using Minio.Exceptions;
 
-namespace Common.Blob.MinIo;
+namespace AuthService.Infrastructure.Blob.MinIo;
 
 public class MinIoBlobService(IMinioClient client, IOptions<MinIoBlobOptions> options) : IBlobService
 {
