@@ -1,4 +1,5 @@
 ﻿using AuthService.Domain.ValueObjects;
+using Common.ResultPattern;
 
 namespace AuthService.Domain.Entities;
 
