@@ -1,3 +1,5 @@
+using Common.ResultPattern;
+
 namespace FileService.Domain.ValueObjects;
 
 public record FileBlobId

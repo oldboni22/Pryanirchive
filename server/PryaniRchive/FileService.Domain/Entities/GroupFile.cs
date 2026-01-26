@@ -1,4 +1,5 @@
 using Common.Data;
+using Common.ResultPattern;
 using FileService.Domain.ValueObjects;
 
 namespace FileService.Domain.Entities;

@@ -1,4 +1,5 @@
 using System.Buffers;
+using Common.ResultPattern;
 
 namespace FileService.Domain.ValueObjects;
 

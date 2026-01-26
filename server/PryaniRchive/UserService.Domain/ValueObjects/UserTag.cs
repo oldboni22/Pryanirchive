@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using Common.ResultPattern;
 
 namespace UserService.Domain.ValueObjects;
 

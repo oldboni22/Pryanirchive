@@ -1,4 +1,4 @@
-using Common.ResultPattern;
+namespace Common.ResultPattern;
 
 public class Result
 {
