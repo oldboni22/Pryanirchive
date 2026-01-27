@@ -1,0 +1,19 @@
+syntax = "proto3";
+import "google/protobuf/wrappers.proto";
+
+option csharp_namespace = "GRpc.UserPermissions";
+
+package permissions;
+
+message UserGroupRequest {
+  string UserId = 1;
+  string GroupId = 2;
+}
+
+message UserGroupReply {
+  google.protobuf.StringValue Permission = 1;
+} 
+
+service UserPermissionService {
+  rpc GetUserGroupPermission (UserGroupRequest) returns (UserGroupReply);
+}
