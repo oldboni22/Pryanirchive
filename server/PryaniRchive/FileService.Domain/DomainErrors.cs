@@ -12,4 +12,6 @@ public static class DomainErrors
     
     public static readonly Error FileExtensionTooLarge = 
         new Error("FileExtension.Large", "File extension is too large.", ErrorType.Validation);
+    
+    public static readonly Error BlobNotFound = new Error("Blob.NotFound", "Blob Not Found.", ErrorType.NotFound);
 }

@@ -1,6 +1,7 @@
 using Common.Blob.MinIo;
 using Common.ResultPattern;
 using FileService.Application.Contracts.Blob;
+using FileService.Domain;
 using Microsoft.Extensions.Options;
 using Minio;
 using Minio.DataModel.Args;
@@ -82,7 +83,7 @@ public class MinIoBlobService(IMinioClient client, IOptions<MinIoBlobOptions> op
         }
         catch (ObjectNotFoundException)
         {
-            return BlobErrors.BlobNotFound;
+            return DomainErrors.BlobNotFound;
         }
         catch (Exception ex)
         {
