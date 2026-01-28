@@ -9,7 +9,7 @@ public class UserGroupPermissionGRpcClient(UserPermissionService.UserPermissionS
 {   
     public async Task<Result<UserPermission>> GetUserGroupPermissionAsync(Guid userId, Guid groupId, CancellationToken cancellationToken = default)
     {
-        var request = new UserGroupRequest
+        var request = new UserSpaceRequest
         {
             UserId = userId.ToString(),
             GroupId = groupId.ToString()
@@ -17,7 +17,7 @@ public class UserGroupPermissionGRpcClient(UserPermissionService.UserPermissionS
 
         try 
         {
-            var result = await client.GetUserGroupPermissionAsync(request, cancellationToken: cancellationToken);
+            var result = await client.GetUserSpacePermissionAsync(request, cancellationToken: cancellationToken);
             
             if (result is null || string.IsNullOrEmpty(result.Permission))
             {

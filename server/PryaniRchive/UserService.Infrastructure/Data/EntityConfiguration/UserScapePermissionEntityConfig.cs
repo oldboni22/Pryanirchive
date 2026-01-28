@@ -4,13 +4,13 @@ using UserService.Domain.Entities;
 
 namespace UserService.Infrastructure.Data.EntityConfiguration;
 
-public sealed class UserGroupPermissionEntityConfig : IEntityTypeConfiguration<UserGroupPermission>
+public sealed class UserScapePermissionEntityConfig : IEntityTypeConfiguration<UserSpacePermission>
 {
-    public void Configure(EntityTypeBuilder<UserGroupPermission> builder)
+    public void Configure(EntityTypeBuilder<UserSpacePermission> builder)
     {
         builder.HasKey(e => e.Id);
 
-        builder.HasIndex(e => new {e.UserId, e.FileGroupId})
+        builder.HasIndex(e => new {e.UserId, e.SpaceId})
             .IsUnique();
     }
 }

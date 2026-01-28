@@ -5,7 +5,7 @@ using UserService.Domain.Entities;
 
 namespace UserService.Domain.RepositoryContracts;
 
-public interface IUserGroupPermissionRepository : IRepository<UserGroupPermission>
+public interface IUserGroupPermissionRepository : IRepository<UserSpacePermission>
 {
     Task<Result<UserPermission>> GetUserGroupPermissionAsync(Guid userId, Guid groupId);
 }

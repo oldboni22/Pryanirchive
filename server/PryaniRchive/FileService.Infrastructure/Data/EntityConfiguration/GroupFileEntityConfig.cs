@@ -29,17 +29,22 @@ public sealed class GroupFileEntityConfig : IEntityTypeConfiguration<GroupFile>
                 value => FileBlobId.FromDatabase(value))
             .HasMaxLength(FileBlobId.MaxLength);
         
-        builder.HasOne(f => f.FileGroup)
+        builder
+            .HasOne(f =>f.Space)
+            .WithMany()
+            .HasForeignKey(f => f.SpaceId);
+        
+        builder.HasOne(f => f.Folder)
             .WithMany(g => g.Files)
-            .HasForeignKey(f => f.GroupId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .HasForeignKey(f => f.FolderId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.Property(f => f.FileBlobId)
             .HasMaxLength(Constraints.BlobFileIdMaxLength);
         
-        builder.HasIndex(f => new {f.GroupId, f.FileName, })
+        builder.HasIndex(f => new {f.FolderId, f.FileName, })
             .IsUnique();
         
-        builder.HasIndex(f => new { f.OwnerId, f.GroupId });
+        builder.HasIndex(f => new { OwnerId = f.SpaceId, f.FolderId });
     }
 }

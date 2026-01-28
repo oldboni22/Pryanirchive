@@ -6,9 +6,11 @@ namespace FileService.Infrastructure.Data;
 
 public sealed class FileServiceDbContext(DbContextOptions options) : DbContext(options)
 {
-    public DbSet<FileGroup>  FileGroups { get; set; }
+    public DbSet<Folder>  Folders { get; set; }
     
     public DbSet<GroupFile>  GroupFiles { get; set; }
+
+    public DbSet<Space> Spaces {get; set;}
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
