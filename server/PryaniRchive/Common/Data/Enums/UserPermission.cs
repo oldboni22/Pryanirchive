@@ -1,8 +1,8 @@
-namespace UserService.Domain.Enums;
+namespace Common.Data.Enums;
 
 public enum UserPermission
 {
     Read = 0,
-    Upload = 1,
+    Modify = 1,
     Owner = 2
 }

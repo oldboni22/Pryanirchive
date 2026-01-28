@@ -1,7 +1,7 @@
 using Common.Data;
+using Common.Data.Enums;
 using Common.ResultPattern;
 using UserService.Domain.Entities;
-using UserService.Domain.Enums;
 
 namespace UserService.Domain.RepositoryContracts;
 

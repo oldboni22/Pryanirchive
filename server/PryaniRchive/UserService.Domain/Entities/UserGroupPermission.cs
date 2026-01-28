@@ -1,5 +1,5 @@
 using Common.Data;
-using UserService.Domain.Enums;
+using Common.Data.Enums;
 
 namespace UserService.Domain.Entities;
 
