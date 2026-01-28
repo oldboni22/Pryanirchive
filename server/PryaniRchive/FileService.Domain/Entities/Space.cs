@@ -7,6 +7,4 @@ public class Space : EntityBase
     public Guid OwnerId { get; init; }
     
     public required string Name { get; init; }
-    
-    public IEnumerable<Folder> RootFolders { get; init; } = [];
 }

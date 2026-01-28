@@ -31,7 +31,7 @@ public sealed class FolderEntityConfig : IEntityTypeConfiguration<Folder>
 
         builder
             .HasOne(f => f.Space)
-            .WithMany(s => s.RootFolders)
+            .WithMany()
             .HasForeignKey(f => f.SpaceId)
             .OnDelete(DeleteBehavior.Restrict);
         
