@@ -10,9 +10,7 @@ public static class WebApplicationExtensions
     {
         public async Task EnsureBlobExists()
         {
-            using var scope = app.Services.CreateScope();
-            
-            var blobService = scope.ServiceProvider.GetService<IBlobService>()
+            var blobService = app.Services.GetService<IBlobService>()
                 ?? throw new NullReferenceException("Blob service not found.");
 
             await blobService.EnsureStorageExists();
