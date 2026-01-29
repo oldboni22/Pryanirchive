@@ -19,21 +19,16 @@ public sealed class FolderEntityConfig : IEntityTypeConfiguration<Folder>
             .WithMany(x => x.NestedFolders)
             .HasForeignKey(x => x.ParentFolderId)
             .OnDelete(DeleteBehavior.Restrict);
-
-        builder
-            .HasOne(x => x.Space)
-            .WithMany()
-            .HasForeignKey(x => x.SpaceId);
         
-        builder.Property(x => x.Name)
-            .IsRequired()
-            .HasMaxLength(Constraints.MaxNameLength);
-
         builder
             .HasOne(f => f.Space)
             .WithMany()
             .HasForeignKey(f => f.SpaceId)
             .OnDelete(DeleteBehavior.Restrict);
+        
+        builder.Property(x => x.Name)
+            .IsRequired()
+            .HasMaxLength(Constraints.MaxNameLength);
         
         builder.HasIndex(x => new{ x.SpaceId, x.Name})
             .HasFilter("\"ParentFolderId\" IS NULL")

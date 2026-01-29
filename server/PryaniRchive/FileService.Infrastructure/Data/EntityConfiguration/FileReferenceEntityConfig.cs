@@ -5,11 +5,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace FileService.Infrastructure.Data.EntityConfiguration;
 
-file static class Constraints
-{
-    public const int BlobFileIdMaxLength = 500;
-}
-
 public sealed class FileReferenceEntityConfig : IEntityTypeConfiguration<FileReference>
 {
     public void Configure(EntityTypeBuilder<FileReference> builder)
@@ -38,9 +33,6 @@ public sealed class FileReferenceEntityConfig : IEntityTypeConfiguration<FileRef
             .WithMany(g => g.Files)
             .HasForeignKey(f => f.FolderId)
             .OnDelete(DeleteBehavior.Restrict);
-
-        builder.Property(f => f.FileBlobId)
-            .HasMaxLength(Constraints.BlobFileIdMaxLength);
         
         builder.HasIndex(f => new { f.FolderId, f.FileName, })
             .IsUnique();
