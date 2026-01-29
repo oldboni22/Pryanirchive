@@ -1,10 +1,9 @@
-using FileService.Application.Contracts.Blob;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace FileService.Application;
+namespace FileService.Application.Contracts.Blob;
 
-public static class WebApplicationExtensions
+public static class BlobExtensions
 {
     extension(WebApplication app)
     {
