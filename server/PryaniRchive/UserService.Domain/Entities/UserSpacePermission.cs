@@ -3,9 +3,9 @@ using Common.Data.Enums;
 
 namespace UserService.Domain.Entities;
 
-public sealed class UserGroupPermission : EntityWithTimestamps
+public sealed class UserSpacePermission : EntityWithTimestamps
 {
-    public Guid FileGroupId { get; init; }
+    public Guid SpaceId { get; init; }
     
     public Guid UserId { get; init; }
 

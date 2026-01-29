@@ -4,13 +4,15 @@ using FileService.Domain.ValueObjects;
 
 namespace FileService.Domain.Entities;
 
-public sealed class GroupFile : EntityWithTimestamps
+public sealed class FileReference : EntityWithTimestamps
 {
-    public Guid GroupId { get; set; }
+    public Guid FolderId { get; set; }
 
-    public Guid OwnerId { get; init; }
+    public Guid SpaceId { get; init; }
+
+    public Space Space { get; set; } = null!;
     
-    public FileGroup FileGroup { get; set; } = null!;
+    public Folder Folder { get; set; } = null!;
     
     public long FileSize { get; set; }
     
@@ -18,7 +20,7 @@ public sealed class GroupFile : EntityWithTimestamps
     
     public FileName FileName { get; private set; }
 
-    private GroupFile() {}
+    private FileReference() {}
 
     public Result<FileName> UpdateFileName(string input)
     {
@@ -32,18 +34,18 @@ public sealed class GroupFile : EntityWithTimestamps
         return nameResult;
     }
     
-    public static Result<GroupFile> Create(string name, FileGroup group, long fileSize)
+    public static Result<FileReference> Create(string name, Folder folder, long fileSize)
     {
         var nameResult = FileName.Create(name);
 
         return nameResult.IsSuccess
-            ? new GroupFile
+            ? new FileReference
             {
-                GroupId = group.Id, 
+                FolderId = folder.Id, 
                 FileName = nameResult, 
                 FileSize = fileSize, 
                 FileBlobId = FileBlobId.Create(name), 
-                OwnerId =  group.OwnerId
+                SpaceId =  folder.SpaceId
             }
             : nameResult.Error;
     }

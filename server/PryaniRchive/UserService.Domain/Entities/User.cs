@@ -9,5 +9,5 @@ public sealed class User : EntityWithTimestamps
     
     public required UserTag Tag { get; init; }
 
-    public IEnumerable<UserGroupPermission> Permissions { get; init; } = [];
+    public IEnumerable<UserSpacePermission> Permissions { get; init; } = [];
 }
