@@ -77,5 +77,5 @@ public sealed class Folder : EntityWithTimestamps
     /// <summary>
     /// Files stored directly within this group/folder.
     /// </summary>
-    public IEnumerable<GroupFile> Files { get; init; } = [];
+    public IEnumerable<FileReference> Files { get; init; } = [];
 }

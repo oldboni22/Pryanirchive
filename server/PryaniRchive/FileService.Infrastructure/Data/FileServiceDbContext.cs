@@ -8,7 +8,7 @@ public sealed class FileServiceDbContext(DbContextOptions options) : DbContext(o
 {
     public DbSet<Folder>  Folders { get; set; }
     
-    public DbSet<GroupFile>  GroupFiles { get; set; }
+    public DbSet<FileReference>  FileReferences { get; set; }
 
     public DbSet<Space> Spaces {get; set;}
 

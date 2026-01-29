@@ -10,9 +10,9 @@ file static class Constraints
     public const int BlobFileIdMaxLength = 500;
 }
 
-public sealed class GroupFileEntityConfig : IEntityTypeConfiguration<GroupFile>
+public sealed class FileReferenceEntityConfig : IEntityTypeConfiguration<FileReference>
 {
-    public void Configure(EntityTypeBuilder<GroupFile> builder)
+    public void Configure(EntityTypeBuilder<FileReference> builder)
     {
         builder.HasKey(x => x.Id);
         
@@ -42,9 +42,9 @@ public sealed class GroupFileEntityConfig : IEntityTypeConfiguration<GroupFile>
         builder.Property(f => f.FileBlobId)
             .HasMaxLength(Constraints.BlobFileIdMaxLength);
         
-        builder.HasIndex(f => new {f.FolderId, f.FileName, })
+        builder.HasIndex(f => new { f.FolderId, f.FileName, })
             .IsUnique();
         
-        builder.HasIndex(f => new { OwnerId = f.SpaceId, f.FolderId });
+        builder.HasIndex(f => new { f.SpaceId, f.FolderId });
     }
 }
