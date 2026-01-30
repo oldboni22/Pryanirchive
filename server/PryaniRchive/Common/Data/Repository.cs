@@ -19,11 +19,11 @@ public class Repository<T>(DbContext context) : IRepository<T> where T : EntityB
 {
     protected DbContext Context { get; } = context;
     
-    public async Task<T> AddAsync(T entity, CancellationToken cancellationToken = default)
+    public virtual Task<T> AddAsync(T entity, CancellationToken cancellationToken = default)
     {
-        var createdEntity = await Context.Set<T>().AddAsync(entity, cancellationToken);
+        var createdEntity = Context.Set<T>().Add(entity);
 
-        return createdEntity.Entity;
+        return Task.FromResult(entity);
     }
 
     public Task<T?> GetByIdAsync(Guid id, bool trackChanges = false, CancellationToken cancellationToken = default)

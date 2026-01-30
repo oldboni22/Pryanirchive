@@ -1,4 +1,5 @@
-﻿using Common.Data;
+﻿using System.Collections.Generic;
+using Common.Data;
 using UserService.Domain.ValueObjects;
 
 namespace UserService.Domain.Entities;
