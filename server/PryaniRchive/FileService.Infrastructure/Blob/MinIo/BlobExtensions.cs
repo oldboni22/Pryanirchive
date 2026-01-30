@@ -16,9 +16,17 @@ public static class BlobExtensions
             var fileService = app.Services.GetKeyedService<IBlobService>(AvatarMinioService.Key)
                                 ?? throw new NullReferenceException("Blob service not found.");
             
-            await Task.WhenAll(
+            var results = await Task.WhenAll(
                 fileService.EnsureStorageExists(),  
                 avatarService.EnsureStorageExists());
+            
+            foreach (var result in results)
+            {
+                if (!result.IsSuccess)
+                {
+                    throw new Exception($"Storage initialization failed: {result.Error.Message}");
+                }
+            }
         }
     }
 }
