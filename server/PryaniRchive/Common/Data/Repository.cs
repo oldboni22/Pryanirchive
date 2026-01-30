@@ -21,8 +21,7 @@ public class Repository<T>(DbContext context) : IRepository<T> where T : EntityB
     
     public virtual Task<T> AddAsync(T entity, CancellationToken cancellationToken = default)
     {
-        var createdEntity = Context.Set<T>().Add(entity);
-
+        Context.Set<T>().Add(entity);
         return Task.FromResult(entity);
     }
 
@@ -50,15 +49,12 @@ public class Repository<T>(DbContext context) : IRepository<T> where T : EntityB
 
     public async Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var entity = await GetByIdAsync(id, false, cancellationToken);
-
-        if (entity is null)
-        {
-            return false;
-        }
+        var affectedRows = await Context
+            .Set<T>()
+            .Where(e => e.Id == id)
+            .ExecuteDeleteAsync(cancellationToken);
         
-        Context.Set<T>().Remove(entity);
-        return true;
+        return affectedRows > 0;
     }
     
     protected async Task<PagedList<T>> GetByConditionAsync(
@@ -71,15 +67,15 @@ public class Repository<T>(DbContext context) : IRepository<T> where T : EntityB
             .Set<T>()
             .Where(expression);
         
+        query = trackChanges 
+            ? query
+            : query.AsNoTracking();
+        
         var count = await query.CountAsync(cancellationToken);
         
         query = query
             .Skip((paginationParameters.PageNumber - 1) * paginationParameters.PageSize)
             .Take(paginationParameters.PageSize);
-
-        query = trackChanges 
-            ? query
-            : query.AsNoTracking();
         
         var list = await query.ToListAsync(cancellationToken);
         
