@@ -1,4 +1,3 @@
-using Common.Blob.MinIo;
 using Common.ResultPattern;
 using FileService.Application.Contracts.Blob;
 using FileService.Domain;
@@ -9,9 +8,10 @@ using Minio.Exceptions;
 
 namespace FileService.Infrastructure.Blob.MinIo;
 
-public class MinIoBlobService(IMinioClient client, IOptions<MinIoBlobOptions> options) : IBlobService
+public abstract class MinIoBlobService(IMinioClient client, IOptions<MinIoBlobOptions> options) : IBlobService
 {
-    private readonly string _bucketName = options.Value.BucketName;
+    protected abstract string BucketName { get; } 
+        
     private readonly int _expirationSeconds = (int)TimeSpan.FromHours(options.Value.UrlExpireHours).TotalSeconds;
     
     public async Task<Result<string>> UploadFileAsync(
@@ -22,7 +22,7 @@ public class MinIoBlobService(IMinioClient client, IOptions<MinIoBlobOptions> op
             await using (fileStream)
             {
                 var putArgs = new PutObjectArgs()
-                    .WithBucket(_bucketName)
+                    .WithBucket(BucketName)
                     .WithObject(fileBlobId)
                     .WithObjectSize(fileStream.Length)
                     .WithStreamData(fileStream)
@@ -44,7 +44,7 @@ public class MinIoBlobService(IMinioClient client, IOptions<MinIoBlobOptions> op
         try
         {
             var args = new PresignedGetObjectArgs()
-                .WithBucket(_bucketName)
+                .WithBucket(BucketName)
                 .WithObject(fileBlobId)
                 .WithExpiry(_expirationSeconds);
             
@@ -64,7 +64,7 @@ public class MinIoBlobService(IMinioClient client, IOptions<MinIoBlobOptions> op
             var memoryStream = new MemoryStream();
 
             var args = new GetObjectArgs()
-                .WithBucket(_bucketName)
+                .WithBucket(BucketName)
                 .WithObject(fileBlobId)
                 .WithCallbackStream(async (stream, ct) =>
                 {
@@ -96,7 +96,7 @@ public class MinIoBlobService(IMinioClient client, IOptions<MinIoBlobOptions> op
         try
         {
             var args = new RemoveObjectArgs()
-                .WithBucket(_bucketName)
+                .WithBucket(BucketName)
                 .WithObject(fileBlobId);
 
             await client.RemoveObjectAsync(args, cancellationToken);
@@ -112,12 +112,12 @@ public class MinIoBlobService(IMinioClient client, IOptions<MinIoBlobOptions> op
     {
         try
         {
-            var existsArgs = new BucketExistsArgs().WithBucket(_bucketName);
+            var existsArgs = new BucketExistsArgs().WithBucket(BucketName);
             var bucketExists = await client.BucketExistsAsync(existsArgs, cancellationToken);
 
             if (bucketExists) return Result.Success();
 
-            var createArgs = new MakeBucketArgs().WithBucket(_bucketName);
+            var createArgs = new MakeBucketArgs().WithBucket(BucketName);
             await client.MakeBucketAsync(createArgs, cancellationToken);
             
             return Result.Success();
