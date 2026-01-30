@@ -1,4 +1,3 @@
-using Common.Blob.MinIo;
 using FileService.Application.Contracts.Blob;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,7 +24,10 @@ public static class ServiceCollectionExtensions
                     .Build();
             });
             
-            return services.AddSingleton<IBlobService, MinIoBlobService>();
+            return 
+                services
+                    .AddKeyedSingleton<IBlobService, AvatarMinioService>(AvatarMinioService.Key)
+                    .AddKeyedSingleton<IBlobService, FileMinioService>(FileMinioService.Key);
         }
     }
 }
