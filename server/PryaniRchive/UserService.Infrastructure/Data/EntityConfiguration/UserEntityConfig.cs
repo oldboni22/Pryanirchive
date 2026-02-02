@@ -33,6 +33,14 @@ public sealed class UserEntityConfig : IEntityTypeConfiguration<User>
             .HasMaxLength(Constraints.TagLength)
             .IsFixedLength()
             .IsRequired();
+
+        builder.Property(e => e.AvatarId)
+            .HasConversion(
+                v => v == null ? null : v.ToString(),
+                value => value == null ? null : UserAvatarId.FromDatabase(value))
+            .HasMaxLength(UserAvatarId.MaxFieldLength)
+            .IsFixedLength()
+            .IsRequired(false);
         
         builder.HasIndex(e => e.Tag)
             .IsUnique();

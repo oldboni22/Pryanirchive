@@ -9,6 +9,8 @@ public sealed class User : EntityWithTimestamps
     public required string Name { get; set; }
     
     public required UserTag Tag { get; init; }
+    
+    public UserAvatarId? AvatarId { get; set; }
 
     public IEnumerable<UserSpacePermission> Permissions { get; init; } = [];
 }
