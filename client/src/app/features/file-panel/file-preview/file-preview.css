@@ -23,6 +23,16 @@
   width: 95%;
 }
 
+.top-panel {
+  width: 90%;
+  height: 3rem;
+
+  display: flex;
+
+  justify-content: space-between;
+  align-items: center;
+}
+
 .file-name {
   font-size: 1.25rem;
   font-weight: bold;
@@ -36,4 +46,10 @@
   display: flex;
   justify-content: space-between;
   gap: 2rem;
+}
+
+.empty-bg{
+  background-image:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='85' height='85'><text x='50%' y='50%' font-family='Arial' font-size='12' fill='rgba(0,0,0,1)' text-anchor='middle' transform='rotate(-45, 60, 60)'>FILE INFO</text></svg>");
+  background-repeat: repeat;
 }
