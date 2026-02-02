@@ -8,5 +8,7 @@ import { Component, input, output } from '@angular/core';
 })
 export class Button {
   disabled = input<boolean>(false);
+
+
   onClick = output<MouseEvent>();
 }

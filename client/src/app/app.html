@@ -22,19 +22,24 @@
   ></app-icon>
 
 
-  <app-current-user-banner appSizeDirective width = '30%' height = '20%'
+  <app-current-user-banner appSizeDirective width = '20%' height = '15%'
   ></app-current-user-banner>
 
   <app-folder
     appSizeDirective width = '5rem' height = '5rem'
-    [folder]="{ id: '0', name:'file.txt' }">
+    [folder]="{ id: '0', name:'folder' }">
   </app-folder>
 
   <app-file
     appSizeDirective width = '5rem' height = '5rem'
-    [file]="{ id: '0', name:'file.txt', previewUrl: null }">
+    [file]="{ id: '0', name:'file.txt', previewUrl: null, createdAt:'10/10/2000', updatedAt:'10/11/2000'}">
 
   </app-file>
 
-</app-panel>
+  <app-file-preview
+    appSizeDirective width = '30rem' height = '30rem'
+  >
 
+  </app-file-preview>
+
+</app-panel>
