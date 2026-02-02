@@ -1,0 +1,23 @@
+:host {
+  display: block;
+  /* Решаем проблему центрирования иконки в родителе */
+  overflow: hidden;
+}
+
+.icon-style {
+  /* Чтобы иконка не сплющивалась, а аккуратно вписывалась */
+  object-fit: cover;
+  border-radius: var(--border-radius);
+  /* Переход для плавной смены картинки (если нужно) */
+  transition: border 0.3s ease;
+}
+
+/* Стили для случая, когда иконка "вставлена" (embedded) */
+:host(.embedded) .icon-style {
+  border: var(--border-width) solid var(--border-color);
+}
+
+/* Если мы хотим, чтобы в кнопках иконка была чуть меньше и без тени (опционально) */
+:host-context(app-button) .icon-style {
+  box-shadow: none;
+}

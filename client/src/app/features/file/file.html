@@ -1,0 +1,14 @@
+<app-button
+  appSizeDirective width='100%' height='100%'>
+  <div
+    class="container">
+
+    <app-icon
+      appSizeDirective width="70%" height="70%"
+      [alt]="file().name"
+      [path]=previewPath()>
+    </app-icon>
+
+    <p class="label">{{ file().name }}</p>
+  </div>
+</app-button>

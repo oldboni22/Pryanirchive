@@ -1,0 +1,7 @@
+<button
+  [disabled]="disabled()"
+  (click)="onClick.emit($event)"
+  class="size-input button-container"
+>
+  <ng-content></ng-content>
+</button>

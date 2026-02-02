@@ -1,0 +1,14 @@
+<app-button
+  appSizeDirective width='100%' height='100%'>
+  <div
+    class="container">
+
+    <app-icon
+      appSizeDirective width="70%" height="70%"
+      [path]="iconPath"
+      [alt]="folder().name">
+    </app-icon>
+
+    <p class="label">{{ folder().name }}</p>
+  </div>
+</app-button>

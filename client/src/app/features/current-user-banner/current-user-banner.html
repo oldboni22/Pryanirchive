@@ -1,0 +1,24 @@
+<app-button
+  appSizeDirective width="100%" height="100%"
+  (onClick)="onProfileClick()"
+  >
+
+  @if (user()) {
+    <div class="size-input grid-container">
+      <span class="user-name">{{user()!.name}}</span>
+      <span class="user-tag">#{{user()!.tag}}</span>
+
+      <div class="avatar-wrapper">
+        <app-icon
+          class="user-avatar"
+          [path]="avatarUrl()"
+          [embedded]="true">
+        </app-icon>
+      </div>
+    </div>
+  }
+  @else{
+    <span class = "login-text">Log in</span>
+  }
+
+</app-button>
