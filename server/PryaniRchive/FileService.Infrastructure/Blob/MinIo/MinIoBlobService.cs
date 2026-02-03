@@ -8,13 +8,22 @@ using Minio.Exceptions;
 
 namespace FileService.Infrastructure.Blob.MinIo;
 
+file static class Constants
+{
+    public const string ContentDispositionHeaderName = "response-content-disposition";
+    
+    public const string InlineDisposition =  "inline";
+    
+    public const string AttachmentDisposition =  "attachment";
+}
+
 public abstract class MinIoBlobService(IMinioClient client, IOptions<MinIoBlobOptions> options) : IBlobService
 {
     protected abstract string BucketName { get; } 
         
     private readonly int _expirationSeconds = (int)TimeSpan.FromHours(options.Value.UrlExpireHours).TotalSeconds;
     
-    public async Task<Result<string>> UploadFileAsync(
+    public async Task<Result> UploadFileAsync(
         Stream fileStream, string fileBlobId, string contentType, CancellationToken cancellationToken = default)
     {
         try
@@ -29,8 +38,8 @@ public abstract class MinIoBlobService(IMinioClient client, IOptions<MinIoBlobOp
                     .WithContentType(contentType);
 
                 await client.PutObjectAsync(putArgs, cancellationToken);
-
-                return await GetFileLinkAsync(fileBlobId, cancellationToken);
+                
+                return Result.Success();
             }
         }
         catch (Exception ex)
@@ -39,14 +48,18 @@ public abstract class MinIoBlobService(IMinioClient client, IOptions<MinIoBlobOp
         }
     }
 
-    public async Task<Result<string>> GetFileLinkAsync(string fileBlobId, CancellationToken cancellationToken = default)
+    public async Task<Result<string>> GetFileLinkAsync(string fileBlobId, bool isInline, CancellationToken cancellationToken = default)
     {
         try
         {
             var args = new PresignedGetObjectArgs()
                 .WithBucket(BucketName)
                 .WithObject(fileBlobId)
-                .WithExpiry(_expirationSeconds);
+                .WithExpiry(_expirationSeconds)
+                .WithHeaders(new Dictionary<string, string>
+                {
+                    {Constants.ContentDispositionHeaderName, isInline ? Constants.InlineDisposition : Constants.AttachmentDisposition}
+                });
             
             var link = await client.PresignedGetObjectAsync(args);
             return link;
