@@ -4,9 +4,9 @@ namespace FileService.Application.Contracts.Blob;
 
 public interface IBlobService
 {
-    Task<Result<string>> UploadFileAsync(Stream fileStream, string fileBlobId, string contentType, CancellationToken cancellationToken = default);
+    Task<Result> UploadFileAsync(Stream fileStream, string fileBlobId, string contentType, CancellationToken cancellationToken = default);
     
-    Task<Result<string>> GetFileLinkAsync(string fileBlobId, CancellationToken cancellationToken = default);
+    Task<Result<string>> GetFileLinkAsync(string fileBlobId, bool isInline, CancellationToken cancellationToken = default);
     
     Task<Result<FileOutput>> GetFileAsync(string fileBlobId, CancellationToken cancellationToken = default);
     
