@@ -1,10 +1,13 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using Common.ResultPattern;
 using FileService.Application.Contracts.Blob;
-using FileService.Domain;
 using Microsoft.Extensions.Options;
 using Minio;
 using Minio.DataModel.Args;
-using Minio.Exceptions;
 
 namespace FileService.Infrastructure.Blob.MinIo;
 
@@ -48,8 +51,13 @@ public abstract class MinIoBlobService(IMinioClient client, IOptions<MinIoBlobOp
         }
     }
 
-    public async Task<Result<string>> GetFileLinkAsync(string fileBlobId, bool isInline, CancellationToken cancellationToken = default)
+    public async Task<Result<string>> GetFileLinkAsync(string fileBlobId, string fileName,bool isInline, CancellationToken cancellationToken = default)
     {
+        var dispositionType = isInline ? Constants.InlineDisposition : Constants.AttachmentDisposition;
+        var encodedName = Uri.EscapeDataString(fileName);
+        
+        string contentDisposition = $"{dispositionType}; filename=\"{fileName}\"; filename*=UTF-8''{encodedName}";
+        
         try
         {
             var args = new PresignedGetObjectArgs()
@@ -58,45 +66,11 @@ public abstract class MinIoBlobService(IMinioClient client, IOptions<MinIoBlobOp
                 .WithExpiry(_expirationSeconds)
                 .WithHeaders(new Dictionary<string, string>
                 {
-                    {Constants.ContentDispositionHeaderName, isInline ? Constants.InlineDisposition : Constants.AttachmentDisposition}
+                    {Constants.ContentDispositionHeaderName, contentDisposition}
                 });
             
             var link = await client.PresignedGetObjectAsync(args);
             return link;
-        }
-        catch (Exception ex)
-        {
-            return ex;
-        }
-    }
-
-    public async Task<Result<FileOutput>> GetFileAsync(string fileBlobId, CancellationToken cancellationToken = default)
-    {
-        try
-        {
-            var memoryStream = new MemoryStream();
-
-            var args = new GetObjectArgs()
-                .WithBucket(BucketName)
-                .WithObject(fileBlobId)
-                .WithCallbackStream(async (stream, ct) =>
-                {
-                    await stream.CopyToAsync(memoryStream, ct);
-                });
-            
-            var stats = await client.GetObjectAsync(args, cancellationToken);
-            memoryStream.Position = 0;
-
-            return new FileOutput
-            {
-                Content = memoryStream,
-                ContentType = stats.ContentType,
-                FileName = fileBlobId
-            };
-        }
-        catch (ObjectNotFoundException)
-        {
-            return DomainErrors.BlobNotFound;
         }
         catch (Exception ex)
         {

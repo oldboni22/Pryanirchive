@@ -6,9 +6,7 @@ public interface IBlobService
 {
     Task<Result> UploadFileAsync(Stream fileStream, string fileBlobId, string contentType, CancellationToken cancellationToken = default);
     
-    Task<Result<string>> GetFileLinkAsync(string fileBlobId, bool isInline, CancellationToken cancellationToken = default);
-    
-    Task<Result<FileOutput>> GetFileAsync(string fileBlobId, CancellationToken cancellationToken = default);
+    Task<Result<string>> GetFileLinkAsync(string fileBlobId, string fileName, bool isInline, CancellationToken cancellationToken = default);
     
     Task<Result> DeleteFileAsync(string fileBlobId, CancellationToken cancellationToken = default);
 
