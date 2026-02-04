@@ -1,0 +1,35 @@
+<app-box
+  class="w-screen h-screen overflow-hidden flex flex-col"
+  [transparent]="true">
+
+  <app-box
+    [fill]="true"
+    [transparent]="true"
+    class="flex items-center justify-center h-[90vh] md:h-[95vh] xl:h-[95vh] md:p-[3.5%] xl:p-[5.5%] "
+  >
+    <app-box
+      [bordered]="true"
+      [fill]="true"
+      class="h-full">
+      <app-header [class]="'h-9'">HEADER
+        <app-button [class]="'w-8 h-8 text-center'">X</app-button>
+      </app-header>
+      <div class="w-full flex">
+        <app-inline-button
+          [class]="'w-20 h-8 text-center text-(--text-color)'"
+          (onClick)="console.log('file')">
+          <span>file</span>
+        </app-inline-button>
+        <app-inline-button [class]="'w-20 h-8 text-center text-(--text-color)'"><span>edit</span></app-inline-button>
+        <app-inline-button [class]="'w-20 h-8 text-center'"><span>view</span></app-inline-button>
+      </div>
+    </app-box>
+  </app-box>
+  <app-header
+    class="h-[10vh] md:h-[5vh] xl:h-[5vh] flex">
+    <app-inline-button
+      class="text-inherit text-center h-full w-[50%]"><span>USER</span></app-inline-button>
+    <app-inline-button
+      class="text-inherit text-center h-full w-[50%]"><span>FILE</span></app-inline-button>
+  </app-header>
+</app-box>
