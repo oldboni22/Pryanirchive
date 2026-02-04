@@ -11,7 +11,8 @@ import {Component, computed, HostListener, input, output} from '@angular/core';
 })
 export class InlineButton {
   class = input<string>('', { alias: 'class' });
-
+  activeShiny = input<boolean>(true);
+  hoverShadow = input<boolean>(true);
   onClick = output<MouseEvent>();
 
   @HostListener('click', ['$event'])
@@ -22,9 +23,9 @@ export class InlineButton {
   combinedClasses = computed(() => {
     return [
       this.class(),
-      `hover:shadow-volume
-       active:bg-accent-color active:bg-button-shiny
-       select-none cursor-pointer text-(--text-color)`
+      this.activeShiny() ? 'active:bg-button-shiny' : '',
+      this.hoverShadow() ? 'hover:shadow-volume' : '',
+      `select-none cursor-pointer)`
     ].filter(Boolean).join(' ');
   });
 }
