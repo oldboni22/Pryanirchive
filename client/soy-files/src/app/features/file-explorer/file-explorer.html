@@ -1,0 +1,15 @@
+<app-box
+  [bordered]="true"
+  [fill]="true"
+  class="h-full">
+  <app-header [class]="`
+  h-[4vh] xl:h-[5vh]
+  text-[10px] md:text-[15px] xl:text-[23.5px]`">
+    <span>HEADER</span>
+  </app-header>
+  <div class="w-full flex text-(--text-color)">
+    <app-toolbar-button [text]="'file'"></app-toolbar-button>
+    <app-toolbar-button [text]="'edit'"></app-toolbar-button>
+    <app-toolbar-button [text]="'view'"></app-toolbar-button>
+  </div>
+</app-box>
