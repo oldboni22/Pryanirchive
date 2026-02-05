@@ -43,7 +43,7 @@ public abstract class CachedResource<TKey, TValue>(HybridCache cache) : ICachedR
 
     public async Task CreateAsync(TKey key, TValue value, CancellationToken cancellationToken = default)
     {
-        await  CreateResourceAsync(key, value, cancellationToken);
+        await CreateResourceAsync(key, value, cancellationToken);
         await Cache.SetAsync(ConvertKey(key), value, cancellationToken: cancellationToken);
     }
 
