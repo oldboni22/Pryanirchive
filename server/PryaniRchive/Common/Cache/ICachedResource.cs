@@ -19,6 +19,8 @@ public abstract class CachedResource<TKey, TValue>(HybridCache cache) : ICachedR
     
     protected abstract HybridCacheEntryOptions Options { get; }
     
+    protected abstract string Prefix { get; }
+    
     protected abstract string ConvertKey(TKey key); 
     
     protected abstract ValueTask<TValue> GetFromResourceAsync(TKey key, CancellationToken cancellationToken = default);
@@ -32,7 +34,7 @@ public abstract class CachedResource<TKey, TValue>(HybridCache cache) : ICachedR
     public async Task<TValue> GetAsync(TKey key, CancellationToken cancellationToken = default)
     {
         return await Cache.GetOrCreateAsync(
-            ConvertKey(key),
+            GenerateKey(key),
             ctx => GetFromResourceAsync(key, ctx),
             Options,
             cancellationToken: cancellationToken);
@@ -41,33 +43,32 @@ public abstract class CachedResource<TKey, TValue>(HybridCache cache) : ICachedR
     public async Task SetAsync(TKey key, TValue value, CancellationToken cancellationToken = default)
     {
         await SetResourceAsync(key, value, cancellationToken);
-        try
-        {
-            await Cache.SetAsync(ConvertKey(key), value, cancellationToken: cancellationToken);
-        }
-        catch
-        {
-            await Cache.RemoveAsync(ConvertKey(key), cancellationToken);
-        }
+        await SaveCacheSet(GenerateKey(key), value, cancellationToken);
     }
 
     public async Task CreateAsync(TKey key, TValue value, CancellationToken cancellationToken = default)
     {
         await CreateResourceAsync(key, value, cancellationToken);
-        
-        try
-        {
-            await Cache.SetAsync(ConvertKey(key), value, Options, cancellationToken: cancellationToken);
-        }
-        catch
-        {
-            await Cache.RemoveAsync(ConvertKey(key), cancellationToken);
-        }
+        await SaveCacheSet(GenerateKey(key), value, cancellationToken);
     }
-
+    
     public async Task RemoveAsync(TKey key, CancellationToken cancellationToken = default)
     {
         await DeleteFromResourceAsync(key, cancellationToken);
-        await Cache.RemoveAsync(ConvertKey(key), cancellationToken);
+        await Cache.RemoveAsync(GenerateKey(key), cancellationToken);
     }
+    
+    private async Task SaveCacheSet(string key, TValue value, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            await Cache.SetAsync(key, value, Options, cancellationToken: cancellationToken);
+        }
+        catch
+        {
+            await Cache.RemoveAsync(key, cancellationToken);
+        }
+    }
+
+    private string GenerateKey(TKey key) => $"{Prefix}_{ConvertKey(key)}";
 }
