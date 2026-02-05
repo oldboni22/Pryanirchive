@@ -1,0 +1,13 @@
+<app-inline-button
+  [activeShiny]="false"
+  [hoverShadow]="false"
+  [class]="'w-full h-full active:text-shadow-none'"
+  (onClick)="console.log('button')">
+  <app-box
+    [fill]="true"
+    [transparent]="true"
+    [class]="'flex w-full h-full text-[9px] md:text-[15px] xl:text-[18px]'"
+  >
+    <span>{{label()}}</span>
+  </app-box>
+</app-inline-button>
