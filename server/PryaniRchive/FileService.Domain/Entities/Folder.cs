@@ -42,7 +42,7 @@ namespace FileService.Domain.Entities;
 ///   </item>
 /// </list>
 /// </remarks>
-public sealed class FileGroup : EntityWithTimestamps
+public sealed class Folder : EntityWithTimestamps
 {
     /// <summary>
     /// The display name of the folder. Limited to 64 characters.
@@ -53,27 +53,29 @@ public sealed class FileGroup : EntityWithTimestamps
     /// The owner of the folder. All search operations and uniqueness constraints 
     /// are isolated to this specific User ID.
     /// </summary>
-    public required Guid OwnerId { get; init; }
+    public required Guid SpaceId { get; init; }
+
+    public Space Space { get; set; } = null!;
     
     /// <summary>
     /// Collection of child groups. 
     /// Managed via <see cref="Microsoft.EntityFrameworkCore.DeleteBehavior.Restrict"/> 
     /// to prevent accidental deletion of populated trees.
     /// </summary>
-    public IEnumerable<FileGroup> NestedGroups { get; init; } = [];
+    public IEnumerable<Folder> NestedFolders { get; init; } = [];
     
     /// <summary>
     /// The ID of the parent group. Null if the group is located in the root directory.
     /// </summary>
-    public Guid? ParentGroupId { get; set; }
+    public Guid? ParentFolderId { get; set; }
     
     /// <summary>
     /// Navigation property for the parent group.
     /// </summary>
-    public FileGroup? Parent { get; set; }
+    public Folder? Parent { get; set; }
     
     /// <summary>
     /// Files stored directly within this group/folder.
     /// </summary>
-    public IEnumerable<GroupFile> Files { get; init; } = [];
+    public IEnumerable<FileReference> Files { get; init; } = [];
 }

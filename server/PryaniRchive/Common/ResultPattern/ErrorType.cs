@@ -6,4 +6,5 @@ public enum ErrorType
     Validation,
     Exception,
     NotFound,
+    NotAllowed
 }

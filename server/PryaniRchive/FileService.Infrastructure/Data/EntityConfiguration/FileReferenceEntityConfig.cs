@@ -5,14 +5,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace FileService.Infrastructure.Data.EntityConfiguration;
 
-file static class Constraints
+public sealed class FileReferenceEntityConfig : IEntityTypeConfiguration<FileReference>
 {
-    public const int BlobFileIdMaxLength = 500;
-}
-
-public sealed class GroupFileEntityConfig : IEntityTypeConfiguration<GroupFile>
-{
-    public void Configure(EntityTypeBuilder<GroupFile> builder)
+    public void Configure(EntityTypeBuilder<FileReference> builder)
     {
         builder.HasKey(x => x.Id);
         
@@ -29,17 +24,19 @@ public sealed class GroupFileEntityConfig : IEntityTypeConfiguration<GroupFile>
                 value => FileBlobId.FromDatabase(value))
             .HasMaxLength(FileBlobId.MaxLength);
         
-        builder.HasOne(f => f.FileGroup)
-            .WithMany(g => g.Files)
-            .HasForeignKey(f => f.GroupId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        builder.Property(f => f.FileBlobId)
-            .HasMaxLength(Constraints.BlobFileIdMaxLength);
+        builder
+            .HasOne(f =>f.Space)
+            .WithMany()
+            .HasForeignKey(f => f.SpaceId);
         
-        builder.HasIndex(f => new {f.GroupId, f.FileName, })
+        builder.HasOne(f => f.Folder)
+            .WithMany(g => g.Files)
+            .HasForeignKey(f => f.FolderId)
+            .OnDelete(DeleteBehavior.Restrict);
+        
+        builder.HasIndex(f => new { f.FolderId, f.FileName, })
             .IsUnique();
         
-        builder.HasIndex(f => new { f.OwnerId, f.GroupId });
+        builder.HasIndex(f => new { f.SpaceId, f.FolderId });
     }
 }

@@ -1,11 +1,11 @@
 using Common.Data;
+using Common.Data.Enums;
 using Common.ResultPattern;
 using UserService.Domain.Entities;
-using UserService.Domain.Enums;
 
 namespace UserService.Domain.RepositoryContracts;
 
-public interface IUserGroupPermissionRepository : IRepository<UserGroupPermission>
+public interface IUserGroupPermissionRepository : IRepository<UserSpacePermission>
 {
     Task<Result<UserPermission>> GetUserGroupPermissionAsync(Guid userId, Guid groupId);
 }

@@ -1,20 +1,32 @@
-using Common.Blob.MinIo;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using Common.ResultPattern;
 using FileService.Application.Contracts.Blob;
-using FileService.Domain;
 using Microsoft.Extensions.Options;
 using Minio;
 using Minio.DataModel.Args;
-using Minio.Exceptions;
 
 namespace FileService.Infrastructure.Blob.MinIo;
 
-public class MinIoBlobService(IMinioClient client, IOptions<MinIoBlobOptions> options) : IBlobService
+file static class Constants
 {
-    private readonly string _bucketName = options.Value.BucketName;
+    public const string ContentDispositionHeaderName = "response-content-disposition";
+    
+    public const string InlineDisposition =  "inline";
+    
+    public const string AttachmentDisposition =  "attachment";
+}
+
+public abstract class MinIoBlobService(IMinioClient client, IOptions<MinIoBlobOptions> options) : IBlobService
+{
+    protected abstract string BucketName { get; } 
+        
     private readonly int _expirationSeconds = (int)TimeSpan.FromHours(options.Value.UrlExpireHours).TotalSeconds;
     
-    public async Task<Result<string>> UploadFileAsync(
+    public async Task<Result> UploadFileAsync(
         Stream fileStream, string fileBlobId, string contentType, CancellationToken cancellationToken = default)
     {
         try
@@ -22,15 +34,15 @@ public class MinIoBlobService(IMinioClient client, IOptions<MinIoBlobOptions> op
             await using (fileStream)
             {
                 var putArgs = new PutObjectArgs()
-                    .WithBucket(_bucketName)
+                    .WithBucket(BucketName)
                     .WithObject(fileBlobId)
                     .WithObjectSize(fileStream.Length)
                     .WithStreamData(fileStream)
                     .WithContentType(contentType);
 
                 await client.PutObjectAsync(putArgs, cancellationToken);
-
-                return await GetFileLinkAsync(fileBlobId, cancellationToken);
+                
+                return Result.Success();
             }
         }
         catch (Exception ex)
@@ -39,51 +51,26 @@ public class MinIoBlobService(IMinioClient client, IOptions<MinIoBlobOptions> op
         }
     }
 
-    public async Task<Result<string>> GetFileLinkAsync(string fileBlobId, CancellationToken cancellationToken = default)
+    public async Task<Result<string>> GetFileLinkAsync(string fileBlobId, string fileName,bool isInline, CancellationToken cancellationToken = default)
     {
+        var dispositionType = isInline ? Constants.InlineDisposition : Constants.AttachmentDisposition;
+        var encodedName = Uri.EscapeDataString(fileName);
+        
+        string contentDisposition = $"{dispositionType}; filename=\"{fileName}\"; filename*=UTF-8''{encodedName}";
+        
         try
         {
             var args = new PresignedGetObjectArgs()
-                .WithBucket(_bucketName)
+                .WithBucket(BucketName)
                 .WithObject(fileBlobId)
-                .WithExpiry(_expirationSeconds);
+                .WithExpiry(_expirationSeconds)
+                .WithHeaders(new Dictionary<string, string>
+                {
+                    {Constants.ContentDispositionHeaderName, contentDisposition}
+                });
             
             var link = await client.PresignedGetObjectAsync(args);
             return link;
-        }
-        catch (Exception ex)
-        {
-            return ex;
-        }
-    }
-
-    public async Task<Result<FileOutput>> GetFileAsync(string fileBlobId, CancellationToken cancellationToken = default)
-    {
-        try
-        {
-            var memoryStream = new MemoryStream();
-
-            var args = new GetObjectArgs()
-                .WithBucket(_bucketName)
-                .WithObject(fileBlobId)
-                .WithCallbackStream(async (stream, ct) =>
-                {
-                    await stream.CopyToAsync(memoryStream, ct);
-                });
-            
-            var stats = await client.GetObjectAsync(args, cancellationToken);
-            memoryStream.Position = 0;
-
-            return new FileOutput
-            {
-                Content = memoryStream,
-                ContentType = stats.ContentType,
-                FileName = fileBlobId
-            };
-        }
-        catch (ObjectNotFoundException)
-        {
-            return DomainErrors.BlobNotFound;
         }
         catch (Exception ex)
         {
@@ -96,7 +83,7 @@ public class MinIoBlobService(IMinioClient client, IOptions<MinIoBlobOptions> op
         try
         {
             var args = new RemoveObjectArgs()
-                .WithBucket(_bucketName)
+                .WithBucket(BucketName)
                 .WithObject(fileBlobId);
 
             await client.RemoveObjectAsync(args, cancellationToken);
@@ -112,12 +99,12 @@ public class MinIoBlobService(IMinioClient client, IOptions<MinIoBlobOptions> op
     {
         try
         {
-            var existsArgs = new BucketExistsArgs().WithBucket(_bucketName);
+            var existsArgs = new BucketExistsArgs().WithBucket(BucketName);
             var bucketExists = await client.BucketExistsAsync(existsArgs, cancellationToken);
 
             if (bucketExists) return Result.Success();
 
-            var createArgs = new MakeBucketArgs().WithBucket(_bucketName);
+            var createArgs = new MakeBucketArgs().WithBucket(BucketName);
             await client.MakeBucketAsync(createArgs, cancellationToken);
             
             return Result.Success();

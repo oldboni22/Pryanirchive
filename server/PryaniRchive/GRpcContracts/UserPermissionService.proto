@@ -5,15 +5,15 @@ option csharp_namespace = "GRpc.UserPermissions";
 
 package permissions;
 
-message UserGroupRequest {
+message UserSpaceRequest {
   string UserId = 1;
   string GroupId = 2;
 }
 
-message UserGroupReply {
+message UserSpaceReply {
   google.protobuf.StringValue Permission = 1;
 } 
 
 service UserPermissionService {
-  rpc GetUserGroupPermission (UserGroupRequest) returns (UserGroupReply);
+  rpc GetUserSpacePermission (UserSpaceRequest) returns (UserSpaceReply);
 }
