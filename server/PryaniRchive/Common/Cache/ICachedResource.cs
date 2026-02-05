@@ -17,6 +17,8 @@ public abstract class CachedResource<TKey, TValue>(HybridCache cache) : ICachedR
 {
     protected HybridCache Cache { get; } = cache;
     
+    protected abstract HybridCacheEntryOptions Options { get; }
+    
     protected abstract string ConvertKey(TKey key); 
     
     protected abstract ValueTask<TValue> GetFromResourceAsync(TKey key, CancellationToken cancellationToken = default);
@@ -32,19 +34,35 @@ public abstract class CachedResource<TKey, TValue>(HybridCache cache) : ICachedR
         return await Cache.GetOrCreateAsync(
             ConvertKey(key),
             ctx => GetFromResourceAsync(key, ctx),
+            Options,
             cancellationToken: cancellationToken);
     }
 
     public async Task SetAsync(TKey key, TValue value, CancellationToken cancellationToken = default)
     {
         await SetResourceAsync(key, value, cancellationToken);
-        await Cache.SetAsync(ConvertKey(key), value, cancellationToken: cancellationToken);
+        try
+        {
+            await Cache.SetAsync(ConvertKey(key), value, cancellationToken: cancellationToken);
+        }
+        catch
+        {
+            await Cache.RemoveAsync(ConvertKey(key), cancellationToken);
+        }
     }
 
     public async Task CreateAsync(TKey key, TValue value, CancellationToken cancellationToken = default)
     {
         await CreateResourceAsync(key, value, cancellationToken);
-        await Cache.SetAsync(ConvertKey(key), value, cancellationToken: cancellationToken);
+        
+        try
+        {
+            await Cache.SetAsync(ConvertKey(key), value, Options, cancellationToken: cancellationToken);
+        }
+        catch
+        {
+            await Cache.RemoveAsync(ConvertKey(key), cancellationToken);
+        }
     }
 
     public async Task RemoveAsync(TKey key, CancellationToken cancellationToken = default)
