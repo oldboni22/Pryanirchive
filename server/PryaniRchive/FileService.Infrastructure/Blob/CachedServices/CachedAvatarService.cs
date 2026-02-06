@@ -75,8 +75,15 @@ public sealed class CachedAvatarService(
         return linkResult;
     }
 
-    public Task<Result> RemoveAsync(Guid userId, string key, CancellationToken cancellationToken = default)
+    public async Task<Result> RemoveAsync(Guid userId, string key, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        var removeResult = await blob.DeleteFileAsync(key, cancellationToken);
+
+        if (removeResult.IsSuccess)
+        {
+            await Cache.RemoveByTagAsync(userId.ToString(), cancellationToken);
+        }
+        
+        return removeResult;
     }
 }
