@@ -15,7 +15,7 @@ public class UserPermissionServiceServer(IUserServiceRepositoryManager repositor
             throw new RpcException(GetInvalidGuidStatus());
         }
 
-        var result = await repositoryManager.UserGroupPermissionRepository.GetUserGroupPermissionAsync(userId, groupId);
+        var result = await repositoryManager.UserSpacePermissionRepository.GetUserGroupPermissionAsync(userId, groupId);
         
         return new UserSpaceReply
         {

@@ -17,6 +17,11 @@
 
     <ItemGroup>
         <Protobuf Include="UserPermissionService.proto" />
+        <Protobuf Include="UserAvatarService.proto" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Common\Common.csproj" />
     </ItemGroup>
     
 </Project>

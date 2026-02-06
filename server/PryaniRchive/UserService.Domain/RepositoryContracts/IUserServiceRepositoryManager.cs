@@ -4,5 +4,5 @@ namespace UserService.Domain.RepositoryContracts;
 
 public interface IUserServiceRepositoryManager : IRepositoryManager 
 {
-    IUserGroupPermissionRepository UserGroupPermissionRepository { get; }
+    IUserSpacePermissionRepository UserSpacePermissionRepository { get; }
 }

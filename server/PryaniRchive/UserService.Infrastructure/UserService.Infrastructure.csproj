@@ -13,6 +13,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\GRpcContracts\GRpcContracts.csproj" />
+      <ProjectReference Include="..\UserService.Application\UserService.Application.csproj" />
       <ProjectReference Include="..\UserService.Domain\UserService.Domain.csproj" />
     </ItemGroup>
 
