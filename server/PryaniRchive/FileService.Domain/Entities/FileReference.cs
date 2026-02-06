@@ -34,7 +34,7 @@ public sealed class FileReference : EntityWithTimestamps
         return nameResult;
     }
     
-    public static Result<FileReference> Create(string name, Folder folder, long fileSize)
+    public static Result<FileReference> Create(Guid generatedFileId, string name, Folder folder, long fileSize)
     {
         var nameResult = FileName.Create(name);
 
@@ -44,7 +44,7 @@ public sealed class FileReference : EntityWithTimestamps
                 FolderId = folder.Id, 
                 FileName = nameResult, 
                 FileSize = fileSize, 
-                FileBlobId = FileBlobId.Create(name), 
+                FileBlobId = FileBlobId.Create(generatedFileId, name), 
                 SpaceId =  folder.SpaceId
             }
             : nameResult.Error;

@@ -23,7 +23,7 @@ public sealed class CachedAvatarService(
             LocalCacheExpiration = TimeSpan.FromHours(options.Value.UrlExpireHours),
         };
 
-    protected override string Prefix => "Not_needed";
+    protected override string? Prefix => null; //Not needed
     
     public async Task<Result<string>> GetAsync(Guid userId, string key, CancellationToken cancellationToken = default)
     {

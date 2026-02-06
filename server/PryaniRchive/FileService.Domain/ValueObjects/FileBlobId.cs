@@ -8,13 +8,15 @@ public record FileBlobId
     
     private const int ExtensionMaxLength = 10;
     
-    public const int MaxLength = GuidLength + ExtensionMaxLength;
+    private const string Prefix = "avatar";
+    
+    public const int MaxLength = GuidLength + ExtensionMaxLength + 7;
     
     public string Value { get; init; }
     
     private FileBlobId(string value) =>  Value = value;
 
-    public static Result<FileBlobId> Create(string fileName)
+    public static Result<FileBlobId> Create(Guid generatedGuid, string fileName)
     {
         if (string.IsNullOrWhiteSpace(fileName))
         {
@@ -28,7 +30,7 @@ public record FileBlobId
             return DomainErrors.FileExtensionTooLarge;
         }
 
-        return new FileBlobId($"{Guid.NewGuid()}{extension.ToLower()}");
+        return new FileBlobId($"{Prefix}_{generatedGuid}{extension.ToLower()}");
     }
 
     public static FileBlobId FromDatabase(string value) => new FileBlobId(value);

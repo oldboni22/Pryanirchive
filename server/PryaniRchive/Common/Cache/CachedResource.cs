@@ -8,7 +8,7 @@ public abstract class CachedResource(HybridCache cache)
     
     protected abstract HybridCacheEntryOptions Options { get; }
     
-    protected abstract string Prefix { get; }
+    protected abstract string? Prefix { get; }
     
-    protected virtual string GenerateKey(string key) => $"{Prefix}_{key}";
+    protected virtual string GenerateKey(string key) => Prefix is null ? key : $"{Prefix}_{key}";
 }
