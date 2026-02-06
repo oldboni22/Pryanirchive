@@ -16,7 +16,7 @@ public sealed class FileReference : EntityWithTimestamps
     
     public long FileSize { get; set; }
     
-    public FileBlobId FileBlobId {get; set;}
+    public FileBlobId FileBlobId {get; init;}
     
     public FileName FileName { get; private set; }
 
