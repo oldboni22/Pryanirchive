@@ -8,11 +8,11 @@ using Microsoft.Extensions.Options;
 
 namespace FileService.Infrastructure.Blob.CachedServices;
 
-public sealed class CachedAvatarService(
+public class CachedFileService(
     HybridCache cache, 
-    [FromKeyedServices(AvatarMinioService.Key)] IBlobService blob, 
+    [FromKeyedServices(FileMinioService.Key)] IBlobService blob, 
     IOptions<MinIoBlobOptions> options) 
-    : CachedResource<string,string>(cache), ICachedAvatarService
+    : CachedResource<string,string>(cache), ICachedFileService 
 {
     protected override HybridCacheEntryOptions Options { get; } =
         new HybridCacheEntryOptions
@@ -21,16 +21,9 @@ public sealed class CachedAvatarService(
             LocalCacheExpiration = TimeSpan.FromHours(options.Value.UrlExpireHours),
         };
 
-    protected override string Prefix => "UserAvatar";
+    protected override string Prefix => "File";
 
     protected override string ConvertKey(string key) => key;
-
-    protected override async ValueTask<string?> GetFromResourceAsync(string key, CancellationToken cancellationToken = default)
-    {
-        var result = await blob.GetFileLinkAsync(key, key, true, cancellationToken);
-        
-        return result.IsSuccess ? result.Value : null; 
-    }
 
     protected override async ValueTask DeleteFromResourceAsync(string key, CancellationToken cancellationToken = default)
     {
@@ -41,8 +34,8 @@ public sealed class CachedAvatarService(
     {
         var uploadResult = await blob.UploadFileAsync(value, key, contentType, cancellationToken);
 
-        if (!uploadResult.IsSuccess)
-        {
+        if (!uploadResult.IsSuccess) 
+        { 
             return uploadResult;
         }
         
@@ -54,20 +47,46 @@ public sealed class CachedAvatarService(
         }
         
         var cacheResult = await SaveCacheSet(key, linkResult, cancellationToken);
-            
+        
         return cacheResult.IsSuccess ? linkResult : cacheResult;
     }
 
-    #region Imposible to implement
+    public async Task<Result<string>> GetAsync(string key, string fileName, bool isInline, CancellationToken cancellationToken = default)
+    {
+        var mode = isInline ? "inline" : "attachment";
+        var modeKey = $"{key}_{mode}";
+        
+        try
+        {
+            var result = await Cache.GetOrCreateAsync(
+                GenerateKey(modeKey),
+                async ctx => await blob.GetFileLinkAsync(key, fileName, isInline, ctx),
+                Options,
+                tags: [GenerateKey(key)],
+                cancellationToken);
+            
+            return result;
+        }
+        catch (Exception ex)
+        {
+            return ex;
+        }
+    }
     
+    #region Imposible to implement
     protected override ValueTask SetResourceAsync(string key, string value, CancellationToken cancellationToken = default)
     {
         return ValueTask.CompletedTask;
     }
-    
+
     protected override ValueTask CreateResourceAsync(string key, string value, CancellationToken cancellationToken = default)
     {
         return ValueTask.CompletedTask;
+    }
+    
+    protected override ValueTask<string?> GetFromResourceAsync(string key, CancellationToken cancellationToken = default)
+    {
+        return ValueTask.FromResult<string?>(null);
     }
     #endregion
 }

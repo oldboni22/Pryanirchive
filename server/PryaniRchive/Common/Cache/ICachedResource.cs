@@ -45,7 +45,7 @@ public abstract class CachedResource<TKey, TValue>(HybridCache cache) : ICachedR
 
         if (result is null)
         {
-            return CacheErrors.NotFound;
+            return Error.NotFound;
         }
         
         return result;
@@ -109,5 +109,5 @@ public abstract class CachedResource<TKey, TValue>(HybridCache cache) : ICachedR
         }
     }
 
-    private string GenerateKey(TKey key) => $"{Prefix}_{ConvertKey(key)}";
+    protected string GenerateKey(TKey key) => $"{Prefix}_{ConvertKey(key)}";
 }
