@@ -2,6 +2,7 @@ using Common.Data.Enums;
 using Common.ResultPattern;
 using FileService.Application.GRpc;
 using GRpc.UserPermissions;
+using GRpcContracts;
 
 namespace FileService.Infrastructure.GRpc;
 
@@ -19,9 +20,9 @@ public class UserGroupPermissionGRpcClient(UserPermissionService.UserPermissionS
         {
             var result = await client.GetUserSpacePermissionAsync(request, cancellationToken: cancellationToken);
             
-            if (result is null || string.IsNullOrEmpty(result.Permission))
+            if (result is null)
             {
-                return FileServiceInfraErrors.NotAllowedAction;
+                return GRpcErrors.GRpcResponseEmpty;
             }
             
             return Enum.TryParse<UserPermission>(result.Permission, out var permission)

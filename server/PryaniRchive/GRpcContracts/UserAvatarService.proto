@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+option csharp_namespace = "GRpc.UserAvatar";
+
+message UserAvatarLinkRequest {
+  string AvatarId = 1;
+}
+
+message UserAvatarLinkResponse {
+  string Link = 1; 
+}
+
+message UserAvatarUploadRequest {
+    string AvatarId = 1;
+    string ContentType = 2;
+    bytes Content = 3;
+}
+
+message UserAvatarUploadResponse {
+  bool IsSuccess = 1;
+}
+
+service UserAvatarService {
+  rpc GetUserAvatarLink (UserAvatarLinkRequest) returns (UserAvatarLinkResponse);
+  rpc UploadUserAvatar (UserAvatarUploadRequest) returns (UserAvatarUploadResponse);
+}

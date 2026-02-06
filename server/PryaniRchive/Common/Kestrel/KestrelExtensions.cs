@@ -1,3 +1,5 @@
+using System;
+using System.Net;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
@@ -9,7 +11,7 @@ public static class KestrelExtensions
 {
     extension(WebApplicationBuilder builder)
     {
-        public void ConfigureKestrel()
+        public void ConfigureKestrel(bool mapGRpc)
         {
             var kestrelOptions = builder.Configuration.GetSection(KestrelOptions.ConfigurationSection).Get<KestrelOptions>()!;
 
@@ -19,16 +21,22 @@ public static class KestrelExtensions
                 {
                     listenOptions.Protocols = HttpProtocols.Http1AndHttp2AndHttp3;
                 });
+
+                if (!mapGRpc)
+                {
+                    return;
+                }
+                
+                if (kestrelOptions.LocalNetworkIp is null)
+                {
+                    throw new NullReferenceException();
+                }
+                
+                options.Listen(IPAddress.Parse(kestrelOptions.LocalNetworkIp), kestrelOptions.GRpcPort, listenOptions =>
+                {
+                    listenOptions.Protocols = HttpProtocols.Http2;
+                });
             });
         }
     }
 }
-
-
-/** Use that later to map grpc in userService
-options.Listen(IPAddress.Parse(kestrelOptions.LocalNetworkIp), kestrelOptions.GRpcPort, listenOptions =>
-{
-    listenOptions.Protocols = HttpProtocols.Http2;
-});
-
-**/

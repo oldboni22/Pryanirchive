@@ -1,5 +1,3 @@
-using System;
-using System.IO;
 using Common.ResultPattern;
 
 namespace UserService.Domain.ValueObjects;
@@ -29,7 +27,7 @@ public record UserAvatarId
 
         var ext = Path.GetExtension(fileName);
 
-        if (ext.Length > MaxFileExtensionLength || ext.Length <= 1)
+        if (ext.Length is > MaxFileExtensionLength or <= 1)
         {
             return UserServiceDomainErrors.FileExtensionTooLargeError;
         }

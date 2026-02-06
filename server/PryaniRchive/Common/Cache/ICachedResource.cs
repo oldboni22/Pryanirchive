@@ -1,3 +1,5 @@
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Hybrid;
 
 namespace Common.Cache;
@@ -43,13 +45,13 @@ public abstract class CachedResource<TKey, TValue>(HybridCache cache) : ICachedR
     public async Task SetAsync(TKey key, TValue value, CancellationToken cancellationToken = default)
     {
         await SetResourceAsync(key, value, cancellationToken);
-        await SaveCacheSet(GenerateKey(key), value, cancellationToken);
+        await SaveCacheSet(key, value, cancellationToken);
     }
 
     public async Task CreateAsync(TKey key, TValue value, CancellationToken cancellationToken = default)
     {
         await CreateResourceAsync(key, value, cancellationToken);
-        await SaveCacheSet(GenerateKey(key), value, cancellationToken);
+        await SaveCacheSet(key, value, cancellationToken);
     }
     
     public async Task RemoveAsync(TKey key, CancellationToken cancellationToken = default)
@@ -58,15 +60,17 @@ public abstract class CachedResource<TKey, TValue>(HybridCache cache) : ICachedR
         await Cache.RemoveAsync(GenerateKey(key), cancellationToken);
     }
     
-    private async Task SaveCacheSet(string key, TValue value, CancellationToken cancellationToken = default)
+    protected async Task SaveCacheSet(TKey key, TValue value, CancellationToken cancellationToken = default)
     {
+        var generatedKey = GenerateKey(key);
+        
         try
         {
-            await Cache.SetAsync(key, value, Options, cancellationToken: cancellationToken);
+            await Cache.SetAsync(generatedKey, value, Options, cancellationToken: cancellationToken);
         }
         catch
         {
-            await Cache.RemoveAsync(key, cancellationToken);
+            await Cache.RemoveAsync(generatedKey, cancellationToken);
         }
     }
 
