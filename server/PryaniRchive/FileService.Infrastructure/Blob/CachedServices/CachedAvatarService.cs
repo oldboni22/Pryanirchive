@@ -1,4 +1,5 @@
 using Common.Cache;
+using Common.ResultPattern;
 using FileService.Application.Contracts.Blob;
 using FileService.Infrastructure.Blob.MinIo;
 using Microsoft.Extensions.Caching.Hybrid;
@@ -24,9 +25,11 @@ public sealed class CachedAvatarService(
 
     protected override string ConvertKey(string key) => key;
 
-    protected override async ValueTask<string> GetFromResourceAsync(string key, CancellationToken cancellationToken = default)
+    protected override async ValueTask<string?> GetFromResourceAsync(string key, CancellationToken cancellationToken = default)
     {
-        return await blob.GetFileLinkAsync(key, key, true, cancellationToken);
+        var result = await blob.GetFileLinkAsync(key, key, true, cancellationToken);
+        
+        return result.IsSuccess ? result.Value : null; 
     }
 
     protected override async ValueTask DeleteFromResourceAsync(string key, CancellationToken cancellationToken = default)
@@ -34,13 +37,25 @@ public sealed class CachedAvatarService(
         await blob.DeleteFileAsync(key, cancellationToken);
     }
 
-    public async Task SetAsync(string key, Stream value, string contentType, CancellationToken cancellationToken = default)
+    public async Task<Result> SetAsync(string key, Stream value, string contentType, CancellationToken cancellationToken = default)
     {
-        await blob.UploadFileAsync(value, key, contentType, cancellationToken);
+        try
+        {
+            await blob.UploadFileAsync(value, key, contentType, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            return ex;
+        }
         
-        var link = await blob.GetFileLinkAsync(key, key, true, cancellationToken);
+        var result = await blob.GetFileLinkAsync(key, key, true, cancellationToken);
+
+        if (result.IsSuccess)
+        {
+            await SaveCacheSet(key, result, cancellationToken);    
+        }
         
-        await SaveCacheSet(key, link, cancellationToken);
+        return result;
     }
 
     #region Imposible to implement

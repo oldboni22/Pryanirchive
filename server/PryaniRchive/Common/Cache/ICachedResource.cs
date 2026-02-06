@@ -1,18 +1,20 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Common.ResultPattern;
 using Microsoft.Extensions.Caching.Hybrid;
 
 namespace Common.Cache;
 
 public interface ICachedResource<in TKey, TValue>
 {
-    Task<TValue> GetAsync(TKey key, CancellationToken cancellationToken = default);
+    Task<Result<TValue>> GetAsync(TKey key, CancellationToken cancellationToken = default);
 
-    Task SetAsync(TKey key, TValue value, CancellationToken cancellationToken = default);
+    Task<Result> SetAsync(TKey key, TValue value, CancellationToken cancellationToken = default);
     
-    Task CreateAsync(TKey key, TValue value, CancellationToken cancellationToken = default);
+    Task<Result> CreateAsync(TKey key, TValue value, CancellationToken cancellationToken = default);
     
-    Task RemoveAsync(TKey key, CancellationToken cancellationToken = default);
+    Task<Result> RemoveAsync(TKey key, CancellationToken cancellationToken = default);
 }
 
 public abstract class CachedResource<TKey, TValue>(HybridCache cache) : ICachedResource<TKey, TValue>
@@ -25,7 +27,7 @@ public abstract class CachedResource<TKey, TValue>(HybridCache cache) : ICachedR
     
     protected abstract string ConvertKey(TKey key); 
     
-    protected abstract ValueTask<TValue> GetFromResourceAsync(TKey key, CancellationToken cancellationToken = default);
+    protected abstract ValueTask<TValue?> GetFromResourceAsync(TKey key, CancellationToken cancellationToken = default);
     
     protected abstract ValueTask DeleteFromResourceAsync(TKey key, CancellationToken cancellationToken = default);
     
@@ -33,44 +35,77 @@ public abstract class CachedResource<TKey, TValue>(HybridCache cache) : ICachedR
     
     protected abstract ValueTask CreateResourceAsync(TKey key, TValue value, CancellationToken cancellationToken = default);
     
-    public async Task<TValue> GetAsync(TKey key, CancellationToken cancellationToken = default)
+    public async Task<Result<TValue>> GetAsync(TKey key, CancellationToken cancellationToken = default)
     {
-        return await Cache.GetOrCreateAsync(
+        var result = await Cache.GetOrCreateAsync(
             GenerateKey(key),
             ctx => GetFromResourceAsync(key, ctx),
             Options,
             cancellationToken: cancellationToken);
+
+        if (result is null)
+        {
+            return CacheErrors.NotFound;
+        }
+        
+        return result;
     }
 
-    public async Task SetAsync(TKey key, TValue value, CancellationToken cancellationToken = default)
+    public async Task<Result> SetAsync(TKey key, TValue value, CancellationToken cancellationToken = default)
     {
-        await SetResourceAsync(key, value, cancellationToken);
-        await SaveCacheSet(key, value, cancellationToken);
+        try
+        {
+            await SetResourceAsync(key, value, cancellationToken);
+
+            return await SaveCacheSet(key, value, cancellationToken);
+        }
+        catch(Exception ex)
+        {
+            return ex;
+        }
+        
     }
 
-    public async Task CreateAsync(TKey key, TValue value, CancellationToken cancellationToken = default)
+    public async Task<Result> CreateAsync(TKey key, TValue value, CancellationToken cancellationToken = default)
     {
-        await CreateResourceAsync(key, value, cancellationToken);
-        await SaveCacheSet(key, value, cancellationToken);
+        try
+        {
+            await CreateResourceAsync(key, value, cancellationToken);
+            return await SaveCacheSet(key, value, cancellationToken);
+        }
+        catch(Exception ex)
+        {
+            return ex;
+        }
     }
     
-    public async Task RemoveAsync(TKey key, CancellationToken cancellationToken = default)
+    public async Task<Result> RemoveAsync(TKey key, CancellationToken cancellationToken = default)
     {
-        await DeleteFromResourceAsync(key, cancellationToken);
-        await Cache.RemoveAsync(GenerateKey(key), cancellationToken);
+        try
+        {
+            await DeleteFromResourceAsync(key, cancellationToken);
+            await Cache.RemoveAsync(GenerateKey(key), cancellationToken);
+            return Result.Success();
+        }
+        catch(Exception ex)
+        {
+            return ex;
+        }
     }
     
-    protected async Task SaveCacheSet(TKey key, TValue value, CancellationToken cancellationToken = default)
+    protected async Task<Result> SaveCacheSet(TKey key, TValue value, CancellationToken cancellationToken = default)
     {
         var generatedKey = GenerateKey(key);
         
         try
         {
             await Cache.SetAsync(generatedKey, value, Options, cancellationToken: cancellationToken);
+            return Result.Success();
         }
-        catch
+        catch(Exception ex)
         {
             await Cache.RemoveAsync(generatedKey, cancellationToken);
+            return ex;
         }
     }
 
