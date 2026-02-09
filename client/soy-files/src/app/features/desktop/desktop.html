@@ -1,0 +1,33 @@
+<app-box
+  class="w-screen h-screen overflow-hidden flex flex-col"
+  [transparent]="true">
+
+  <app-box
+    [fill]="true"
+    [transparent]="true"
+    [class]='`flex items-center justify-center
+      h-[95vh]
+      md:h-[96.5vh] xl:h-[96.5vh]
+      md:p-[3.5%] xl:p-[5.5%]`'
+  >
+    <app-file-explorer></app-file-explorer>
+  </app-box>
+  <app-header
+    [textPadding]="false"
+    class="h-[5vh] md:h-[3.5vh] xl:h-[3.5vh] flex gap-2">
+    <app-user-button
+      [class]="'h-full w-[20%] md:w-[15%] xl:w-[15q%] self-end'">
+    </app-user-button>
+    <app-box
+      [fill]="true"
+      [transparent]="true"
+      [class]="'h-full flex items-center'">
+      <app-tile
+        [label]="'Explorer'"
+        [class]="'h-[90%] w-[20%] md:w-[15%] xl:w-[15%]'">
+
+      </app-tile>
+
+    </app-box>
+  </app-header>
+</app-box>
