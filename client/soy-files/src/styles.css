@@ -10,7 +10,15 @@
 
   --color-taskbar-tile: var(--taskbar-tile-color);
 
+  --color-login-bg-color: var(--login-bg-color);
+  --color-login-border-color: var(--login-borders-color);
+
   --background-image-header-bg: var(--header-bg);
+
+  --border-image-login-border: linear-gradient(
+    to right,
+    var(--login-border-gradient)
+  );
 
   --shadow-volume:
     0 6px 10px rgba(0, 0, 0, 0.3),
@@ -107,6 +115,17 @@
       rgb(41, 161, 15);
 
     --taskbar-tile-color: #3584d6;
+
+    --login-bg-color: rgb(107, 115, 213);
+    --login-borders-color: #00309c;
+
+    --login-border-gradient:
+      rgba(255, 255, 255, 0.35),
+      rgba(225, 218, 218, 0.8),
+      rgb(170, 127, 40),
+      rgb(209, 184, 25),
+      rgba(225, 218, 218, 0.8),
+      rgba(255, 255, 255, 0.35);
   }
 }
 
@@ -152,6 +171,17 @@
       rgb(66, 10, 17);
 
     --taskbar-tile-color: #da5050;
+
+    --login-bg-color: #684444;
+    --login-borders-color: #4a0e0e;
+
+    --login-border-gradient:
+      rgba(255, 255, 255, 0.35),
+      rgba(113, 95, 95, 0.8),
+      rgb(193, 189, 177),
+      rgb(120, 118, 97),
+      rgba(113, 95, 95, 0.8),
+      rgba(255, 255, 255, 0.35);
   }
 }
 
@@ -176,4 +206,8 @@ html, body {
 
 @utility header-text-shadow{
   text-shadow: var(--header-text-shadow);
+}
+
+@utility login-border-gradient{
+  border-image: var(--border-image-login-border) 1;
 }
