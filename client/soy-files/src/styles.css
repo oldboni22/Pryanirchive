@@ -69,6 +69,11 @@
     var(--user-gradient)
   );
 
+  --background-image-login-separator: linear-gradient(
+    to bottom,
+    var(--login-separator-gradient)
+  );
+
   --shadow-button-pressed: inset 2px 2px 4px rgba(0, 0, 0, 0.3),
   inset -1px -1px 2px rgba(255, 255, 255, 0.2);
 }
@@ -126,6 +131,14 @@
       rgb(209, 184, 25),
       rgba(225, 218, 218, 0.8),
       rgba(255, 255, 255, 0.35);
+
+    --login-separator-gradient:
+      rgba(255, 255, 255, 0),
+      rgba(255, 255, 255, 0.45),
+      rgb(255, 253, 254, 0.85),
+      rgb(255, 255, 255, 0.85),
+      rgba(255, 255, 255, 0.45),
+      rgba(255, 255, 255, 0);
   }
 }
 
@@ -177,11 +190,19 @@
 
     --login-border-gradient:
       rgba(255, 255, 255, 0.35),
-      rgba(113, 95, 95, 0.8),
+      rgba(99, 92, 92, 0.8),
       rgb(193, 189, 177),
-      rgb(120, 118, 97),
-      rgba(113, 95, 95, 0.8),
+      rgb(80, 74, 74),
+      rgba(99, 92, 92, 0.8),
       rgba(255, 255, 255, 0.35);
+
+    --login-separator-gradient:
+      rgba(255, 255, 255, 0),
+      rgba(126, 115, 117, 0.75),
+      rgb(35, 32, 34),
+      rgb(35, 32, 34),
+      rgba(126, 115, 117, 0.75),
+      rgba(255, 255, 255, 0);
   }
 }
 
