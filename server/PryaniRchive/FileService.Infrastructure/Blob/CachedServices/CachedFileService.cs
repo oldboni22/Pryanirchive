@@ -12,23 +12,18 @@ public class CachedFileService(
     HybridCache cache, 
     [FromKeyedServices(FileMinioService.Key)] IBlobService blob, 
     IOptions<MinIoBlobOptions> options) 
-    : CachedResource<string,string>(cache), ICachedFileService 
+    : CachedResource(cache), ICachedFileService 
 {
+    private const int ExpirationOffset = 30;
+    
     protected override HybridCacheEntryOptions Options { get; } =
         new HybridCacheEntryOptions
         {
-            Expiration = TimeSpan.FromHours(options.Value.UrlExpireHours),
+            Expiration = TimeSpan.FromHours(options.Value.UrlExpireHours).Subtract(TimeSpan.FromMinutes(ExpirationOffset)),
             LocalCacheExpiration = TimeSpan.FromHours(options.Value.UrlExpireHours),
         };
 
-    protected override string Prefix => "File";
-
-    protected override string ConvertKey(string key) => key;
-
-    protected override async ValueTask DeleteFromResourceAsync(string key, CancellationToken cancellationToken = default)
-    {
-        await blob.DeleteFileAsync(key, cancellationToken);
-    }
+    protected override string? Prefix => null; //Not needed
 
     public async Task<Result> SetAsync(string key, Stream value, string contentType, CancellationToken cancellationToken = default)
     {
@@ -39,30 +34,34 @@ public class CachedFileService(
             return uploadResult;
         }
         
-        var linkResult = await blob.GetFileLinkAsync(key, key, true, cancellationToken);
+        await Cache.RemoveByTagAsync(key, cancellationToken);
+        
+        return uploadResult;
+    }
 
-        if (!linkResult.IsSuccess)
+    public async Task<Result> RemoveAsync(string key, CancellationToken cancellationToken = default)
+    {
+        var deleteResult = await  blob.DeleteFileAsync(key, cancellationToken);
+
+        if (deleteResult.IsSuccess)
         {
-            return linkResult;
-        }
+            await Cache.RemoveByTagAsync(key, cancellationToken);
+        } 
         
-        var cacheResult = await SaveCacheSet(key, linkResult, cancellationToken);
-        
-        return cacheResult.IsSuccess ? linkResult : cacheResult;
+        return deleteResult;
     }
 
     public async Task<Result<string>> GetAsync(string key, string fileName, bool isInline, CancellationToken cancellationToken = default)
     {
-        var mode = isInline ? "inline" : "attachment";
-        var modeKey = $"{key}_{mode}";
+        var modeKey = GenerateModeKey(key, isInline);
         
         try
         {
             var result = await Cache.GetOrCreateAsync(
-                GenerateKey(modeKey),
+                modeKey,
                 async ctx => await blob.GetFileLinkAsync(key, fileName, isInline, ctx),
                 Options,
-                tags: [GenerateKey(key)],
+                tags: [key],
                 cancellationToken);
             
             return result;
@@ -72,21 +71,10 @@ public class CachedFileService(
             return ex;
         }
     }
-    
-    #region Imposible to implement
-    protected override ValueTask SetResourceAsync(string key, string value, CancellationToken cancellationToken = default)
-    {
-        return ValueTask.CompletedTask;
-    }
 
-    protected override ValueTask CreateResourceAsync(string key, string value, CancellationToken cancellationToken = default)
+    private static string GenerateModeKey(string key, bool isInline)
     {
-        return ValueTask.CompletedTask;
+        var mode = isInline ? "inline" : "attachment";
+        return $"{key}_{mode}";
     }
-    
-    protected override ValueTask<string?> GetFromResourceAsync(string key, CancellationToken cancellationToken = default)
-    {
-        return ValueTask.FromResult<string?>(null);
-    }
-    #endregion
 }

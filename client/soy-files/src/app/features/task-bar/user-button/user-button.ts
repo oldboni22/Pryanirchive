@@ -14,6 +14,7 @@ import {InlineButton} from '../../../components/inline-button/inline-button';
 })
 export class UserButton {
   class = input<string>('', { alias: 'class' });
+  protected readonly console = console;
 
   combinedClasses = computed(() => {
     return [
@@ -28,5 +29,4 @@ export class UserButton {
       rounded-r-2xl`
     ].filter(Boolean).join(' ');
   });
-  protected readonly console = console;
 }

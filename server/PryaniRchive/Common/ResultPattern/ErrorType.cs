@@ -6,5 +6,6 @@ public enum ErrorType
     Validation,
     Exception,
     NotFound,
+    Collision,
     NotAllowed
 }

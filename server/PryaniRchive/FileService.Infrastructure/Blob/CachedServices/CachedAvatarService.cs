@@ -12,38 +12,48 @@ public sealed class CachedAvatarService(
     HybridCache cache, 
     [FromKeyedServices(AvatarMinioService.Key)] IBlobService blob, 
     IOptions<MinIoBlobOptions> options) 
-    : CachedResource<string,string>(cache), ICachedAvatarService
+    : CachedResource(cache), ICachedAvatarService
 {
+    private const int ExpirationOffset = 30;
+    
     protected override HybridCacheEntryOptions Options { get; } =
         new HybridCacheEntryOptions
         {
-            Expiration = TimeSpan.FromHours(options.Value.UrlExpireHours),
+            Expiration = TimeSpan.FromHours(options.Value.UrlExpireHours).Subtract(TimeSpan.FromMinutes(ExpirationOffset)),
             LocalCacheExpiration = TimeSpan.FromHours(options.Value.UrlExpireHours),
         };
 
-    protected override string Prefix => "UserAvatar";
-
-    protected override string ConvertKey(string key) => key;
-
-    protected override async ValueTask<string?> GetFromResourceAsync(string key, CancellationToken cancellationToken = default)
+    protected override string? Prefix => null; //Not needed
+    
+    public async Task<Result<string>> GetAsync(Guid userId, string key, CancellationToken cancellationToken = default)
     {
-        var result = await blob.GetFileLinkAsync(key, key, true, cancellationToken);
+        var link = await Cache.GetOrCreateAsync(
+            key,
+            async ctx =>
+            {
+                var result = await blob.GetFileLinkAsync(key, key, false, ctx);
+                
+                return result.IsSuccess ? result.Value : null;
+            },
+            Options,
+            [userId.ToString()],
+            cancellationToken: cancellationToken);
+
+        if (link is null)
+        {
+            return Error.NotFound;
+        }
         
-        return result.IsSuccess ? result.Value : null; 
+        return link;
     }
 
-    protected override async ValueTask DeleteFromResourceAsync(string key, CancellationToken cancellationToken = default)
-    {
-        await blob.DeleteFileAsync(key, cancellationToken);
-    }
-
-    public async Task<Result> SetAsync(string key, Stream value, string contentType, CancellationToken cancellationToken = default)
+    public async Task<Result<string>> SetAsync(Guid userId, string key, Stream value, string contentType, CancellationToken cancellationToken = default)
     {
         var uploadResult = await blob.UploadFileAsync(value, key, contentType, cancellationToken);
 
         if (!uploadResult.IsSuccess)
         {
-            return uploadResult;
+            return uploadResult.Error;
         }
         
         var linkResult = await blob.GetFileLinkAsync(key, key, true, cancellationToken);
@@ -52,22 +62,28 @@ public sealed class CachedAvatarService(
         {
             return linkResult;
         }
+
+        try
+        {
+            await Cache.RemoveByTagAsync(userId.ToString(), cancellationToken);
+        }
+        catch
+        {
+            //log
+        }
         
-        var cacheResult = await SaveCacheSet(key, linkResult, cancellationToken);
-            
-        return cacheResult.IsSuccess ? linkResult : cacheResult;
+        return linkResult;
     }
 
-    #region Imposible to implement
-    
-    protected override ValueTask SetResourceAsync(string key, string value, CancellationToken cancellationToken = default)
+    public async Task<Result> RemoveAsync(Guid userId, string key, CancellationToken cancellationToken = default)
     {
-        return ValueTask.CompletedTask;
+        var removeResult = await blob.DeleteFileAsync(key, cancellationToken);
+
+        if (removeResult.IsSuccess)
+        {
+            await Cache.RemoveByTagAsync(userId.ToString(), cancellationToken);
+        }
+        
+        return removeResult;
     }
-    
-    protected override ValueTask CreateResourceAsync(string key, string value, CancellationToken cancellationToken = default)
-    {
-        return ValueTask.CompletedTask;
-    }
-    #endregion
 }
