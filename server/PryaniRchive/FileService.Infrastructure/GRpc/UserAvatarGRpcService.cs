@@ -9,6 +9,8 @@ namespace FileService.Infrastructure.GRpc;
 public class UserAvatarGRpcService([FromKeyedServices(AvatarMinioService.Key)] IBlobService blobService) 
     : UserAvatarService.UserAvatarServiceBase
 {
+    const int MaxFileSize = (int)(3.5 * 1024 * 1024); // 3.5MB
+    
     public override async Task<UserAvatarLinkResponse> GetUserAvatarLink(UserAvatarLinkRequest request, ServerCallContext context)
     {
         var id = request.AvatarId;
@@ -23,6 +25,11 @@ public class UserAvatarGRpcService([FromKeyedServices(AvatarMinioService.Key)] I
 
     public override async Task<UserAvatarUploadResponse> UploadUserAvatar(UserAvatarUploadRequest request, ServerCallContext context)
     {
+        if (request.Content.Length > MaxFileSize)
+        {
+            return new UserAvatarUploadResponse{ IsSuccess = false};
+        }
+        
         try
         {
             using var stream = new MemoryStream(request.Content.ToByteArray());
