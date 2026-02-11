@@ -17,7 +17,7 @@ public class UserGroupPermissionGRpcClient(UserPermissionService.UserPermissionS
         var request = new UserSpaceRequest
         {
             UserId = userId.ToString(),
-            GroupId = groupId.ToString()
+            SpaceId = groupId.ToString()
         };
 
         try 

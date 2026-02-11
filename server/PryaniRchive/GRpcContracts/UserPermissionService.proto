@@ -7,7 +7,7 @@ package permissions;
 
 message UserSpaceRequest {
   string UserId = 1;
-  string GroupId = 2;
+  string SpaceId = 2;
 }
 
 message UserSpaceReply {

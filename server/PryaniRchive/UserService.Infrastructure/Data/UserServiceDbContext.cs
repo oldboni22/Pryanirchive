@@ -7,7 +7,7 @@ public sealed class UserServiceDbContext(DbContextOptions options) : DbContext(o
 {
     public DbSet<User> Users { get; init; }
     
-    public DbSet<UserSpacePermission>  UserPermissions { get; init; }
+    public DbSet<UserSpacePermission> UserPermissions { get; init; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

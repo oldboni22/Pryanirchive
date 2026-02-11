@@ -1,25 +1,30 @@
 using Grpc.Core;
 using GRpc.UserPermissions;
-using UserService.Domain.RepositoryContracts;
+using Microsoft.EntityFrameworkCore;
+using UserService.Infrastructure.Data;
 
 namespace UserService.Infrastructure.GRpc;
 
-public class UserPermissionServiceServer(IUserServiceRepositoryManager repositoryManager) : UserPermissionService.UserPermissionServiceBase
+public class UserPermissionServiceServer(UserServiceDbContext dbContext) : UserPermissionService.UserPermissionServiceBase
 {
     private static Status GetInvalidGuidStatus() => new Status(StatusCode.InvalidArgument, "Invalid GUID format"); 
     
+    private static Status GetPermissionNotExistStatus() => new Status(StatusCode.NotFound, "User permission not found"); 
+    
     public override async Task<UserSpaceReply> GetUserSpacePermission(UserSpaceRequest request, ServerCallContext context)
     {
-        if (!Guid.TryParse(request.UserId, out var userId) || !Guid.TryParse(request.GroupId, out var groupId))
+        if (!Guid.TryParse(request.UserId, out var userId) || !Guid.TryParse(request.SpaceId, out var groupId))
         {
             throw new RpcException(GetInvalidGuidStatus());
         }
 
-        var result = await repositoryManager.UserSpacePermissionRepository.GetUserGroupPermissionAsync(userId, groupId);
-        
-        return new UserSpaceReply
-        {
-            Permission = result.IsSuccess? result.Value.ToString() : string.Empty
-        };
+        var permission = await dbContext.UserPermissions
+                             .AsNoTracking()
+            .Where(p => p.UserId == userId && p.SpaceId == groupId)
+                             .Select(p => new { p.Permission })
+            .SingleOrDefaultAsync()
+            ?? throw new RpcException(GetPermissionNotExistStatus());
+
+        return new UserSpaceReply { Permission = permission.ToString() };
     }
 }

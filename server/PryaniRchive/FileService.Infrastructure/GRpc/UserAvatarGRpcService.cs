@@ -1,21 +1,18 @@
 using Common.ResultPattern;
 using FileService.Application.Contracts.Blob;
+using FileService.Infrastructure.Blob.MinIo;
 using Grpc.Core;
 using GRpc.UserAvatar;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace FileService.Infrastructure.GRpc;
 
-public class UserAvatarGRpcService(ICachedAvatarService cachedAvatarService) 
+public class UserAvatarGRpcService([FromKeyedServices(AvatarMinioService.Key)] IBlobService blobService) 
     : UserAvatarService.UserAvatarServiceBase
 {
     public override async Task<UserAvatarLinkResponse> GetUserAvatarLink(UserAvatarLinkRequest request, ServerCallContext context)
     {
-        if (!Guid.TryParse(request.AvatarId, out var userId))
-        {
-             return new UserAvatarLinkResponse { Link = string.Empty };
-        }
-
-        var result = await cachedAvatarService.GetLoadLinkAsync(userId, request.AvatarId, context.CancellationToken);
+        var result = await blobService.GetLoadLinkAsync(request.AvatarId, request.AvatarId, true, context.CancellationToken);
 
         return new UserAvatarLinkResponse
         {
@@ -25,12 +22,8 @@ public class UserAvatarGRpcService(ICachedAvatarService cachedAvatarService)
 
     public override async Task<UserAvatarUploadLinkResponse> GetUserAvatarUploadLink(UserAvatarUploadLinkRequest request, ServerCallContext context)
     {
-        if (!Guid.TryParse(request.AvatarId, out var userId))
-        {
-             return new UserAvatarUploadLinkResponse { UploadLink = string.Empty };
-        }
-        
-        var result = await cachedAvatarService.GetUploadLinkAsync(userId, request.AvatarId, request.ContentType, context.CancellationToken);
+        var result = await blobService.GetUploadLinkAsync(
+            request.AvatarId, request.ContentType, AvatarMinioService.MaxAvatarSize, context.CancellationToken);
 
         if (!result.IsSuccess)
         {
