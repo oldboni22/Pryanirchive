@@ -7,5 +7,5 @@ public interface IUserAvatarClient
 {
     Task<Result<string>> GetUserAvatarLinkAsync(UserAvatarId avatarId, CancellationToken cancellationToken = default);
     
-    Task<Result> UploadUserAvatarAsync(UserAvatarId avatarId, Stream avatarData, CancellationToken cancellationToken = default);
+    Task<Result<string>> GetUploadLinkAsync(UserAvatarId avatarId, string contentType, CancellationToken cancellationToken = default);
 }

@@ -1,51 +1,50 @@
+using Common.ResultPattern;
 using FileService.Application.Contracts.Blob;
-using FileService.Infrastructure.Blob.MinIo;
 using Grpc.Core;
 using GRpc.UserAvatar;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace FileService.Infrastructure.GRpc;
 
-public class UserAvatarGRpcService([FromKeyedServices(AvatarMinioService.Key)] IBlobService blobService) 
+public class UserAvatarGRpcService(ICachedAvatarService cachedAvatarService) 
     : UserAvatarService.UserAvatarServiceBase
 {
-    const int MaxFileSize = (int)(3.5 * 1024 * 1024); // 3.5MB
-    
     public override async Task<UserAvatarLinkResponse> GetUserAvatarLink(UserAvatarLinkRequest request, ServerCallContext context)
     {
-        var id = request.AvatarId;
+        if (!Guid.TryParse(request.AvatarId, out var userId))
+        {
+             return new UserAvatarLinkResponse { Link = string.Empty };
+        }
 
-        var link = await blobService.GetFileLinkAsync(id, id, true);
+        var result = await cachedAvatarService.GetLoadLinkAsync(userId, request.AvatarId, context.CancellationToken);
 
         return new UserAvatarLinkResponse
         {
-            Link = link
+            Link = result.IsSuccess ? result.Value : string.Empty
         };
     }
 
-    public override async Task<UserAvatarUploadResponse> UploadUserAvatar(UserAvatarUploadRequest request, ServerCallContext context)
+    public override async Task<UserAvatarUploadLinkResponse> GetUserAvatarUploadLink(UserAvatarUploadLinkRequest request, ServerCallContext context)
     {
-        if (request.Content.Length > MaxFileSize)
+        if (!Guid.TryParse(request.AvatarId, out var userId))
         {
-            return new UserAvatarUploadResponse{ IsSuccess = false};
+             return new UserAvatarUploadLinkResponse { UploadLink = string.Empty };
         }
         
-        try
+        var result = await cachedAvatarService.GetUploadLinkAsync(userId, request.AvatarId, request.ContentType, context.CancellationToken);
+
+        if (!result.IsSuccess)
         {
-            using var stream = new MemoryStream(request.Content.ToByteArray());
-            var result = await blobService.UploadFileAsync(stream, request.AvatarId, request.ContentType);
+            var statusCode = result.Error == Error.NotFound ? StatusCode.NotFound : StatusCode.Internal;
+            throw new RpcException(new Status(statusCode, result.Error.ToString()));
+        }
+
+        var response = new UserAvatarUploadLinkResponse
+        {
+            UploadLink = result.Value.Url,
+        };
+        
+        response.FormData.Add(result.Value.FormData);
             
-            return new UserAvatarUploadResponse
-            {
-                IsSuccess = result.IsSuccess,
-            };
-        }
-        catch
-        {
-            return new UserAvatarUploadResponse
-            {
-                IsSuccess = false,
-            };
-        }
+        return response;
     }
 }

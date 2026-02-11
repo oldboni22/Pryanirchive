@@ -18,6 +18,8 @@ public sealed class CachedAvatarService(
     : CachedResource(cache), ICachedAvatarService
 {
     private const int ExpirationOffset = 30;
+
+    private const int MaxAvatarSize = (int)(3.5 * 1024 * 1024);
     
     protected override HybridCacheEntryOptions Options { get; } =
         new HybridCacheEntryOptions
@@ -28,14 +30,14 @@ public sealed class CachedAvatarService(
 
     protected override string? Prefix => null; //Not needed
     
-    public async Task<Result<string>> GetAsync(Guid userId, string key, CancellationToken cancellationToken = default)
+    public async Task<Result<string>> GetLoadLinkAsync(Guid userId, string key, CancellationToken cancellationToken = default)
     {
         var link = await Cache.GetOrCreateAsync(
             key,
             async ctx =>
             {
                 logger.LogCacheMiss(key);
-                var result = await blob.GetFileLinkAsync(key, key, false, ctx);
+                var result = await blob.GetLoadLinkAsync(key, key, false, ctx);
                 
                 return result.IsSuccess ? result.Value : null;
             },
@@ -56,19 +58,12 @@ public sealed class CachedAvatarService(
         return link;
     }
 
-    public async Task<Result<string>> SetAsync(Guid userId, string key, Stream value, string contentType, CancellationToken cancellationToken = default)
+    public async Task<Result<FileUploadDto>> GetUploadLinkAsync(Guid userId, string key, string contentType, CancellationToken cancellationToken = default)
     {
-        logger.LogCacheSetStarted(key);
+        logger.LogBlobOperationStarted("GetUploadLink", key, "Cache");
         
-        var uploadResult = await blob.UploadFileAsync(value, key, contentType, cancellationToken);
-
-        if (!uploadResult.IsSuccess)
-        {
-            return uploadResult.Error;
-        }
+        var linkResult = await blob.GetUploadLinkAsync(key, contentType, MaxAvatarSize, cancellationToken);
         
-        var linkResult = await blob.GetFileLinkAsync(key, key, true, cancellationToken);
-
         if (!linkResult.IsSuccess)
         {
             return linkResult;

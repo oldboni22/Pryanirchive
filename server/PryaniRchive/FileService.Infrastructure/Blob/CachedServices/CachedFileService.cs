@@ -19,6 +19,8 @@ public class CachedFileService(
 {
     private const int ExpirationOffset = 30;
     
+    private const long MaxFileSize = (long)(3.5 * 1024 * 1024 * 1024);
+    
     protected override HybridCacheEntryOptions Options { get; } =
         new HybridCacheEntryOptions
         {
@@ -28,15 +30,15 @@ public class CachedFileService(
 
     protected override string? Prefix => null; //Not needed
 
-    public async Task<Result> SetAsync(string key, Stream value, string contentType, CancellationToken cancellationToken = default)
+    public async Task<Result<FileUploadDto>> GetUploadLinkAsync(string key, string contentType, CancellationToken cancellationToken = default)
     {
-        logger.LogCacheSetStarted(key);
+        logger.LogBlobOperationStarted("GetUploadLink", key, "Cache");
         
-        var uploadResult = await blob.UploadFileAsync(value, key, contentType, cancellationToken);
+        var linkResult = await blob.GetUploadLinkAsync(key, contentType, MaxFileSize, cancellationToken);
 
-        if (!uploadResult.IsSuccess) 
+        if (!linkResult.IsSuccess) 
         { 
-            return uploadResult;
+            return linkResult;
         }
         
         try
@@ -48,7 +50,7 @@ public class CachedFileService(
             logger.LogCacheOperationFailed(ex, key);
         }
         
-        return uploadResult;
+        return linkResult;
     }
 
     public async Task<Result> RemoveAsync(string key, CancellationToken cancellationToken = default)
@@ -72,7 +74,7 @@ public class CachedFileService(
         return deleteResult;
     }
 
-    public async Task<Result<string>> GetAsync(string key, string fileName, bool isInline, CancellationToken cancellationToken = default)
+    public async Task<Result<string>> GetLoadLinkAsync(string key, string fileName, bool isInline, CancellationToken cancellationToken = default)
     {
         var modeKey = GenerateModeKey(key, isInline);
         
@@ -85,7 +87,7 @@ public class CachedFileService(
                 async ctx =>
                 {
                     logger.LogCacheMiss(modeKey);
-                    return await blob.GetFileLinkAsync(key, fileName, isInline, ctx);
+                    return await blob.GetLoadLinkAsync(key, fileName, isInline, ctx);
                 },
                 Options,
                 tags: [key],

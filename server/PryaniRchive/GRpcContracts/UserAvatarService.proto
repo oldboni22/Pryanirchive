@@ -10,17 +10,17 @@ message UserAvatarLinkResponse {
   string Link = 1; 
 }
 
-message UserAvatarUploadRequest {
+message UserAvatarUploadLinkRequest {
     string AvatarId = 1;
     string ContentType = 2;
-    bytes Content = 3;
 }
 
-message UserAvatarUploadResponse {
-  bool IsSuccess = 1;
+message UserAvatarUploadLinkResponse {
+  string UploadLink = 1;
+  map<string,string> FormData = 2;
 }
 
 service UserAvatarService {
   rpc GetUserAvatarLink (UserAvatarLinkRequest) returns (UserAvatarLinkResponse);
-  rpc UploadUserAvatar (UserAvatarUploadRequest) returns (UserAvatarUploadResponse);
+  rpc GetUserAvatarUploadLink (UserAvatarUploadLinkRequest) returns (UserAvatarUploadLinkResponse);
 }

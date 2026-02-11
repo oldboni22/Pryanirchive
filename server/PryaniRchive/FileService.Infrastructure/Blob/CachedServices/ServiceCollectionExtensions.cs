@@ -10,7 +10,8 @@ public static class ServiceCollectionExtensions
         public IServiceCollection RegisterCachedAvatar()
         {
             return services
-                .AddSingleton<ICachedAvatarService, CachedAvatarService>();
+                .AddSingleton<ICachedAvatarService, CachedAvatarService>()
+                .AddSingleton<ICachedFileService, CachedFileService>();
         }
     }
 

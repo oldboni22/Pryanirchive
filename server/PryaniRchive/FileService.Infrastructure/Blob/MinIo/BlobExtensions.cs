@@ -13,7 +13,7 @@ public static class BlobExtensions
             var avatarService = app.Services.GetKeyedService<IBlobService>(AvatarMinioService.Key)
                 ?? throw new NullReferenceException("Blob service not found.");
 
-            var fileService = app.Services.GetKeyedService<IBlobService>(AvatarMinioService.Key)
+            var fileService = app.Services.GetKeyedService<IBlobService>(FileMinioService.Key)
                                 ?? throw new NullReferenceException("Blob service not found.");
             
             var results = await Task.WhenAll(

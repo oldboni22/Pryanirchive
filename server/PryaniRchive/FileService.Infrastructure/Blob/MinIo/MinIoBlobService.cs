@@ -4,6 +4,7 @@ using FileService.Application.Contracts.Blob;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Minio;
+using Minio.DataModel;
 using Minio.DataModel.Args;
 
 namespace FileService.Infrastructure.Blob.MinIo;
@@ -23,37 +24,29 @@ public abstract class MinIoBlobService(IMinioClient client, IOptions<MinIoBlobOp
         
     private readonly int _expirationSeconds = (int)TimeSpan.FromHours(options.Value.UrlExpireHours).TotalSeconds;
     
-    public async Task<Result> UploadFileAsync(
-        Stream fileStream, string fileBlobId, string contentType, CancellationToken cancellationToken = default)
+    public async Task<Result<FileUploadDto>> GetUploadLinkAsync(
+        string fileBlobId, string contentType, long maxSize, CancellationToken cancellationToken = default)
     {
-        logger.LogBlobOperationStarted("Upload", fileBlobId, BucketName);
+        logger.LogBlobOperationStarted("GetUploadLink", fileBlobId, BucketName);
         
         try
         {
-            await using (fileStream)
-            {
-                var putArgs = new PutObjectArgs()
-                    .WithBucket(BucketName)
-                    .WithObject(fileBlobId)
-                    .WithObjectSize(fileStream.Length)
-                    .WithStreamData(fileStream)
-                    .WithContentType(contentType);
-
-                await client.PutObjectAsync(putArgs, cancellationToken);
+            var policy = CreatePostPolicy(fileBlobId, contentType, maxSize);
+            
+            var (url, formData) = await client.PresignedPostPolicyAsync(policy);
+            
+            logger.LogBlobOperationCompleted("GetUploadLink", fileBlobId);
                 
-                logger.LogBlobOperationCompleted("Upload", fileBlobId);
-                
-                return Result.Success();
-            }
+            return new FileUploadDto(url!.ToString(), new Dictionary<string, string>(formData!));
         }
         catch (Exception ex)
         {
-            logger.LogBlobOperationFailed(ex, "Upload", fileBlobId);
+            logger.LogBlobOperationFailed(ex, "GetUploadLink", fileBlobId);
             return ex;
         }
     }
 
-    public async Task<Result<string>> GetFileLinkAsync(string fileBlobId, string fileName,bool isInline, CancellationToken cancellationToken = default)
+    public async Task<Result<string>> GetLoadLinkAsync(string fileBlobId, string fileName,bool isInline, CancellationToken cancellationToken = default)
     {
         logger.LogBlobOperationStarted("GetLink", fileBlobId, BucketName);
         
@@ -136,5 +129,20 @@ public abstract class MinIoBlobService(IMinioClient client, IOptions<MinIoBlobOp
             logger.LogBlobOperationFailed(ex, "EnsureStorageExists", BucketName);
             return ex;
         }
+    }
+    
+    private PostPolicy CreatePostPolicy(string objectName, string contentType, long maxSize)
+    {
+        var policy = new PostPolicy();
+        
+        policy.SetBucket(BucketName);
+        policy.SetKey(objectName);
+        policy.SetExpires(DateTime.UtcNow.AddSeconds(_expirationSeconds));
+        
+        policy.SetContentRange(1, maxSize); 
+        
+        policy.SetContentType(contentType); 
+
+        return policy;
     }
 }
