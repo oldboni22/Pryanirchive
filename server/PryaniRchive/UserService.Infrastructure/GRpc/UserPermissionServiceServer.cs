@@ -22,7 +22,7 @@ public class UserPermissionServiceServer(UserServiceDbContext dbContext) : UserP
                              .AsNoTracking()
             .Where(p => p.UserId == userId && p.SpaceId == groupId)
                              .Select(p => new { p.Permission })
-            .SingleOrDefaultAsync()
+            .FirstOrDefaultAsync()
             ?? throw new RpcException(GetPermissionNotExistStatus());
 
         return new UserSpaceReply { Permission = permission.ToString() };
