@@ -11,9 +11,9 @@ public static class ServiceCollectionExtensions
     {
         public IServiceCollection AddMinIoBlobService(IConfiguration configuration)
         {
-            services.Configure<MinIoBlobOptions>(configuration.GetSection(MinIoBlobOptions.ConfigSection));
+            services.Configure<MinIoConnectionOptions>(configuration.GetSection(MinIoConnectionOptions.ConfigSection));
             
-            var options = configuration.GetSection(MinIoBlobOptions.ConfigSection).Get<MinIoBlobOptions>()!;
+            var options = configuration.GetSection(MinIoConnectionOptions.ConfigSection).Get<MinIoConnectionOptions>()!;
             
             services.AddMinio(configureAction =>
             {

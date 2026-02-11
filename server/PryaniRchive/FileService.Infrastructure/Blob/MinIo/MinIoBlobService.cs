@@ -18,11 +18,11 @@ file static class Constants
     public const string AttachmentDisposition =  "attachment";
 }
 
-public abstract class MinIoBlobService(IMinioClient client, IOptions<MinIoBlobOptions> options, ILogger<MinIoBlobService> logger) : IBlobService
+public abstract class MinIoBlobService(IMinioClient client, IOptions<MinIoConnectionOptions> options, ILogger<MinIoBlobService> logger) : IBlobService
 {
     protected abstract string BucketName { get; } 
         
-    private readonly int _expirationSeconds = (int)TimeSpan.FromHours(options.Value.UrlExpireHours).TotalSeconds;
+    protected abstract int ExpirationSeconds { get; }
     
     public async Task<Result<FileUploadDto>> GetUploadLinkAsync(
         string fileBlobId, string contentType, long maxSize, CancellationToken cancellationToken = default)
@@ -60,7 +60,7 @@ public abstract class MinIoBlobService(IMinioClient client, IOptions<MinIoBlobOp
             var args = new PresignedGetObjectArgs()
                 .WithBucket(BucketName)
                 .WithObject(fileBlobId)
-                .WithExpiry(_expirationSeconds)
+                .WithExpiry(ExpirationSeconds)
                 .WithHeaders(new Dictionary<string, string>
                 {
                     {Constants.ContentDispositionHeaderName, contentDisposition}
@@ -137,7 +137,7 @@ public abstract class MinIoBlobService(IMinioClient client, IOptions<MinIoBlobOp
         
         policy.SetBucket(BucketName);
         policy.SetKey(objectName);
-        policy.SetExpires(DateTime.UtcNow.AddSeconds(_expirationSeconds));
+        policy.SetExpires(DateTime.UtcNow.AddSeconds(ExpirationSeconds));
         
         policy.SetContentRange(1, maxSize); 
         
