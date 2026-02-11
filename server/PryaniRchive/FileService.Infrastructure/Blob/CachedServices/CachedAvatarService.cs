@@ -1,9 +1,11 @@
 using Common.Cache;
+using Common.Logging;
 using Common.ResultPattern;
 using FileService.Application.Contracts.Blob;
 using FileService.Infrastructure.Blob.MinIo;
 using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace FileService.Infrastructure.Blob.CachedServices;
@@ -11,7 +13,8 @@ namespace FileService.Infrastructure.Blob.CachedServices;
 public sealed class CachedAvatarService(
     HybridCache cache, 
     [FromKeyedServices(AvatarMinioService.Key)] IBlobService blob, 
-    IOptions<MinIoBlobOptions> options) 
+    IOptions<MinIoBlobOptions> options,
+    ILogger<CachedAvatarService> logger) 
     : CachedResource(cache), ICachedAvatarService
 {
     private const int ExpirationOffset = 30;
@@ -31,6 +34,7 @@ public sealed class CachedAvatarService(
             key,
             async ctx =>
             {
+                logger.LogCacheMiss(key);
                 var result = await blob.GetFileLinkAsync(key, key, false, ctx);
                 
                 return result.IsSuccess ? result.Value : null;
@@ -39,6 +43,11 @@ public sealed class CachedAvatarService(
             [userId.ToString()],
             cancellationToken: cancellationToken);
 
+        if (link is not null)
+        {
+            logger.LogCacheHit(key);
+        }
+        
         if (link is null)
         {
             return Error.NotFound;
@@ -49,6 +58,8 @@ public sealed class CachedAvatarService(
 
     public async Task<Result<string>> SetAsync(Guid userId, string key, Stream value, string contentType, CancellationToken cancellationToken = default)
     {
+        logger.LogCacheSetStarted(key);
+        
         var uploadResult = await blob.UploadFileAsync(value, key, contentType, cancellationToken);
 
         if (!uploadResult.IsSuccess)
@@ -67,9 +78,9 @@ public sealed class CachedAvatarService(
         {
             await Cache.RemoveByTagAsync(userId.ToString(), cancellationToken);
         }
-        catch
+        catch (Exception ex)
         {
-            //log
+            logger.LogCacheOperationFailed(ex, key);
         }
         
         return linkResult;
@@ -77,11 +88,20 @@ public sealed class CachedAvatarService(
 
     public async Task<Result> RemoveAsync(Guid userId, string key, CancellationToken cancellationToken = default)
     {
+        logger.LogCacheRemoveStarted(key);
+        
         var removeResult = await blob.DeleteFileAsync(key, cancellationToken);
 
         if (removeResult.IsSuccess)
         {
-            await Cache.RemoveByTagAsync(userId.ToString(), cancellationToken);
+            try
+            {
+                await Cache.RemoveByTagAsync(userId.ToString(), cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                logger.LogCacheOperationFailed(ex, key);
+            }
         }
         
         return removeResult;

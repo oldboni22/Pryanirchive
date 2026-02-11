@@ -4,13 +4,15 @@ using System.Text;
 using AuthService.Application.Contracts;
 using AuthService.Domain;
 using Common.Authentication;
+using Common.Logging;
 using Common.ResultPattern;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 namespace AuthService.Infrastructure.ApplicationImplementations.Jwt;
 
-public class JwtService(IOptions<JwtServiceOptions> options) : IJwtService
+public class JwtService(IOptions<JwtServiceOptions> options, ILogger<JwtService> logger) : IJwtService
 {
     private readonly JwtServiceOptions _options = options.Value;
 
@@ -35,12 +37,16 @@ public class JwtService(IOptions<JwtServiceOptions> options) : IJwtService
         };
 
         var accessToken = handler.CreateToken(accessTokenDescriptor);
+        
+        logger.LogTokenIssued(userId);
 
         return new TokenPair(handler.WriteToken(accessToken), Guid.NewGuid().ToString("N"));
     }
 
     public Result<Guid> ExtractUserIdFromExpiredToken(string expiredToken)
     {
+        logger.LogTokenValidationStarted();
+        
         var handler = new JwtSecurityTokenHandler();
         var key = Encoding.UTF8.GetBytes(_options.SignatureKey);
 
@@ -63,6 +69,7 @@ public class JwtService(IOptions<JwtServiceOptions> options) : IJwtService
             if (securityToken is not JwtSecurityToken jwtToken || 
                 !jwtToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
             {
+                logger.LogTokenValidationFailed(new InvalidOperationException("Invalid token algorithm"));
                 return DomainErrors.InvalidAccessToken;
             }
             
@@ -70,13 +77,17 @@ public class JwtService(IOptions<JwtServiceOptions> options) : IJwtService
 
             if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
             {
+                logger.LogTokenValidationFailed(new InvalidOperationException("Invalid user ID claim"));
                 return DomainErrors.InvalidAccessToken;
             }
+            
+            logger.LogTokenValidationCompleted(userId);
 
             return userId;
         }
         catch (Exception ex)
         {
+            logger.LogTokenValidationFailed(ex);
             return ex;
         }
     }
