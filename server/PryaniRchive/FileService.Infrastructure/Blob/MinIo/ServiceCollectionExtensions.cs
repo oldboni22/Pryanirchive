@@ -11,7 +11,12 @@ public static class ServiceCollectionExtensions
     {
         public IServiceCollection AddMinIoBlobService(IConfiguration configuration)
         {
-            services.Configure<MinIoConnectionOptions>(configuration.GetSection(MinIoConnectionOptions.ConfigSection));
+            services
+                .Configure<MinIoConnectionOptions>(configuration.GetSection(MinIoConnectionOptions.ConfigSection))
+                .Configure<MinIoServiceOptions>(
+                    MinIoServiceOptions.AvatarKey, configuration.GetSection(MinIoServiceOptions.AvatarSection))
+                .Configure<MinIoServiceOptions>(
+                    MinIoServiceOptions.FileKey, configuration.GetSection(MinIoServiceOptions.FileSection));
             
             var options = configuration.GetSection(MinIoConnectionOptions.ConfigSection).Get<MinIoConnectionOptions>()!;
             
