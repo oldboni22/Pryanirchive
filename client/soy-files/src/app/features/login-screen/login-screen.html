@@ -26,7 +26,13 @@
       flex flex-col justify-center items-end
       pr-5"
       >
-        <p>NAME AND LOGO</p>
+        <div class="flex flex-col items-center gap-10">
+        <span class="text-3xl md:text-8xl text-login-text-color">Soy files</span>
+        <img
+          alt='logo'
+          src="assets/logo.png"
+          class="w-[30vw] h-[15vh] md:h-[25vw]">
+      </div>
       </div>
     </app-box>
       <div
@@ -42,8 +48,8 @@
       flex flex-col justify-center
       pl-5"
       >
-        <p>MAIL</p>
-        <p>PASSWORD</p>
+        <app-input-field></app-input-field>
+        <app-input-field></app-input-field>
       </div>
     </app-box>
 
