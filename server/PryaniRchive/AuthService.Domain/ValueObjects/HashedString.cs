@@ -10,7 +10,7 @@ public sealed record HashedString
     
     private const int HashSize = 32; 
     
-    private const int Iterations = 100_000; 
+    private const int Iterations = 600_000; 
     
     private static readonly HashAlgorithmName Algorithm = HashAlgorithmName.SHA256;
 
