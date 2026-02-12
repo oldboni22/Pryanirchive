@@ -12,11 +12,7 @@ public static class ServiceCollectionExtensions
         public IServiceCollection AddMinIoBlobService(IConfiguration configuration)
         {
             services
-                .Configure<MinIoConnectionOptions>(configuration.GetSection(MinIoConnectionOptions.ConfigSection))
-                .Configure<MinIoServiceOptions>(
-                    MinIoServiceOptions.AvatarKey, configuration.GetSection(MinIoServiceOptions.AvatarSection))
-                .Configure<MinIoServiceOptions>(
-                    MinIoServiceOptions.FileKey, configuration.GetSection(MinIoServiceOptions.FileSection));
+                .Configure<MinIoConnectionOptions>(configuration.GetSection(MinIoConnectionOptions.ConfigSection));
             
             var options = configuration.GetSection(MinIoConnectionOptions.ConfigSection).Get<MinIoConnectionOptions>()!;
             
@@ -31,6 +27,10 @@ public static class ServiceCollectionExtensions
             
             return 
                 services
+                    .Configure<MinIoServiceOptions>(
+                        MinIoServiceOptions.AvatarKey, configuration.GetSection(MinIoServiceOptions.AvatarSection))
+                    .Configure<MinIoServiceOptions>(
+                        MinIoServiceOptions.FileKey, configuration.GetSection(MinIoServiceOptions.FileSection))
                     .AddKeyedSingleton<IBlobService, AvatarMinioService>(AvatarMinioService.Key)
                     .AddKeyedSingleton<IBlobService, FileMinioService>(FileMinioService.Key);
         }
