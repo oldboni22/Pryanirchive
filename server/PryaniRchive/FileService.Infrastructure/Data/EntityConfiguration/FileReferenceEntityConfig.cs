@@ -15,7 +15,7 @@ public sealed class FileReferenceEntityConfig : IEntityTypeConfiguration<FileRef
             .HasConversion(
                 v => v.Value,
                 value => FileName.FromDatabase(value))
-            .HasMaxLength(FileName.MaxFileNameLength)
+            .HasMaxLength(FileName.MaxNameLength)
             .IsRequired();
 
         builder.Property(f => f.FileBlobId)

@@ -1,10 +1,9 @@
-using System;
 using Common.Data;
 using Common.Data.Enums;
 
 namespace UserService.Domain.Entities;
 
-public sealed class UserSpacePermission : EntityWithTimestamps
+public sealed class UserSpacePermission : EntityBase
 {
     public Guid SpaceId { get; init; }
     

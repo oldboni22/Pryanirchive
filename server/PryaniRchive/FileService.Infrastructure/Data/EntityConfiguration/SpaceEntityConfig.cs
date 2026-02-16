@@ -1,13 +1,9 @@
 using FileService.Domain.Entities;
+using FileService.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace FileService.Infrastructure.Data.EntityConfiguration;
-
-file static class Constraints
-{
-    public const int MaxNameLength = 25;
-}
 
 public class SpaceEntityConfig : IEntityTypeConfiguration<Space>
 {
@@ -20,6 +16,10 @@ public class SpaceEntityConfig : IEntityTypeConfiguration<Space>
             .IsUnique();
 
         builder.Property(x => x.Name)
-            .HasMaxLength(Constraints.MaxNameLength);
+            .HasConversion(
+                v => v.ToString(),
+                value => SpaceName.FromDatabase(value))
+            .IsRequired()
+            .HasMaxLength(Space.MaxNameLength);
     }
 }

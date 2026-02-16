@@ -40,9 +40,11 @@ public class Result<TValue> : Result
         ? _value! 
         : throw new InvalidOperationException("The value of a failure result can't be accessed.");
 
+    public static Result<TValue> FromFailedResult(Result failedResult) => new(default, false, failedResult.Error);
+    
     public static implicit operator Result<TValue>(Error error) => Failure<TValue>(error);
     
     public static implicit operator Result<TValue>(TValue? value) => Success(value)!;
     
-    public static implicit operator TValue (Result<TValue> result) => result.Value;
+    public static implicit operator TValue(Result<TValue> result) => result.Value;
 }

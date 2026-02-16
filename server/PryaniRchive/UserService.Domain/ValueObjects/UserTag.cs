@@ -5,7 +5,7 @@ namespace UserService.Domain.ValueObjects;
 
 public sealed record UserTag
 {
-    private const int Size = 8;
+    public const int Size = 8;
     
     public string Value { get; init; }
     

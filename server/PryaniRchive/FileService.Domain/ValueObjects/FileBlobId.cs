@@ -20,14 +20,14 @@ public record FileBlobId
     {
         if (string.IsNullOrWhiteSpace(fileName))
         {
-            return DomainErrors.EmptyFileName;
+            return FileServiceDomainErrors.EmptyFileName;
         }
         
         var extension = Path.GetExtension(fileName);
 
         if (extension.Length > ExtensionMaxLength)
         {
-            return DomainErrors.FileExtensionTooLarge;
+            return FileServiceDomainErrors.FileExtensionTooLarge;
         }
 
         return new FileBlobId($"{Prefix}_{generatedGuid}{extension.ToLower()}");

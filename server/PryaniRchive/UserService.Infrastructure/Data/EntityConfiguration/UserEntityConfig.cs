@@ -5,13 +5,6 @@ using UserService.Domain.ValueObjects;
 
 namespace UserService.Infrastructure.Data.EntityConfiguration;
 
-file static class Constraints
-{
-    public const int UserNameMaxLength = 15;
-
-    public const int TagLength = 8;
-}
-
 public sealed class UserEntityConfig : IEntityTypeConfiguration<User>
 {
     public void Configure(EntityTypeBuilder<User> builder)
@@ -24,13 +17,17 @@ public sealed class UserEntityConfig : IEntityTypeConfiguration<User>
             .OnDelete(DeleteBehavior.Cascade);
         
         builder.Property(e => e.Name)
-            .HasMaxLength(Constraints.UserNameMaxLength);
+            .HasConversion(
+                v => v.ToString(),
+                value => UserName.FromDatabase(value))
+            .IsRequired()
+            .HasMaxLength(UserName.MaxNameLength);
         
         builder.Property(e => e.Tag)
             .HasConversion(
                 v => v.ToString(),
                 value => UserTag.FromDatabase(value))
-            .HasMaxLength(Constraints.TagLength)
+            .HasMaxLength(UserTag.Size)
             .IsFixedLength()
             .IsRequired();
 

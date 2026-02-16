@@ -4,7 +4,7 @@ using FileService.Domain.ValueObjects;
 
 namespace FileService.Domain.Entities;
 
-public sealed class FileReference : EntityWithTimestamps
+public sealed class FileReference : EntityBase, IEntityWithTimestamps
 {
     public Guid FolderId { get; set; }
 
@@ -20,19 +20,11 @@ public sealed class FileReference : EntityWithTimestamps
     
     public FileName FileName { get; private set; }
 
+    public DateTime CreatedAt { get; set; }
+    
+    public DateTime UpdatedAt { get; set; }
+    
     private FileReference() {}
-
-    public Result<FileName> UpdateFileName(string input)
-    {
-        var nameResult = FileName.Create(input);
-
-        if (nameResult.IsSuccess)
-        {
-            FileName = nameResult;    
-        }
-        
-        return nameResult;
-    }
     
     public static Result<FileReference> Create(Guid generatedFileId, string name, Folder folder, long fileSize)
     {

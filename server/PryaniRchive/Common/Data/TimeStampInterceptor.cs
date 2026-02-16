@@ -26,13 +26,13 @@ public sealed class TimeStampInterceptor : ISaveChangesInterceptor
             .Entries()
             .Where(entry => entry is
             {
-                Entity: EntityWithTimestamps,
+                Entity: IEntityWithTimestamps,
                 State: EntityState.Added or EntityState.Modified
             });
 
         foreach (var entry in entities)
         {
-            var entity = (EntityWithTimestamps)entry.Entity;
+            var entity = (IEntityWithTimestamps)entry.Entity;
             
             entity.UpdatedAt = DateTime.UtcNow;
 

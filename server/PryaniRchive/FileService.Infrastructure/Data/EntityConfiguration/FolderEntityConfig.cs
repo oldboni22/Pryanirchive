@@ -1,13 +1,9 @@
 using FileService.Domain.Entities;
+using FileService.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace FileService.Infrastructure.Data.EntityConfiguration;
-
-file static class Constraints
-{
-    public const int MaxNameLength = 64;
-}
 
 public sealed class FolderEntityConfig : IEntityTypeConfiguration<Folder>
 {
@@ -27,8 +23,11 @@ public sealed class FolderEntityConfig : IEntityTypeConfiguration<Folder>
             .OnDelete(DeleteBehavior.Restrict);
         
         builder.Property(x => x.Name)
+            .HasConversion(
+                v => v.ToString(),
+                value => FolderName.FromDatabase(value))
             .IsRequired()
-            .HasMaxLength(Constraints.MaxNameLength);
+            .HasMaxLength(FolderName.MaxNameLength);
         
         builder.HasIndex(x => new{ x.SpaceId, x.Name})
             .HasFilter("\"ParentFolderId\" IS NULL")
