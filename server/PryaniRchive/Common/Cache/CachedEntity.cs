@@ -32,9 +32,6 @@ public abstract class CachedEntity<TValue>(HybridCache cache) : CachedResource(c
     public async Task<Result<TValue>> GetAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var key = GenerateKey(id.ToString()); 
-        
-        try
-        {
             var entity = await Cache.GetOrCreateAsync(
                 key,
                 ctx => GetFromResourceAsync(id, ctx),
@@ -43,78 +40,49 @@ public abstract class CachedEntity<TValue>(HybridCache cache) : CachedResource(c
                 cancellationToken);
 
             return entity is not null ? entity : Error.NotFound;
-        }
-        catch (Exception ex)
-        {
-            return ex;
-        }
     }
 
     public async Task<Result<TValue>> SetAsync(Guid id, TValue value, CancellationToken cancellationToken = default)
     {
         var key = GenerateKey(id.ToString());
-        
-        try
-        {
-            var updated = await SetResourceAsync(id, value, cancellationToken);
 
-            if (updated is null)
-            {
-                return Error.NotFound;
-            }
-            
-            try
-            {
-                await Cache.RemoveByTagAsync(key, cancellationToken);
-            }
-            catch (Exception ex)
-            {
-                    
-            }
-            
-            return updated;
-        }
-        catch (Exception ex)
+        var updated = await SetResourceAsync(id, value, cancellationToken);
+
+        if (updated is null)
         {
-            return ex;
+            return Error.NotFound;
         }
+
+        await Cache.RemoveByTagAsync(key, cancellationToken);
+
+        return updated;
     }
 
     public async Task<Result<TValue>> CreateAsync(Guid id, TValue value, CancellationToken cancellationToken = default)
     {
         var key = GenerateKey(id.ToString());
-        
+
         try
         {
             var created = await CreateResourceAsync(id, value, cancellationToken);
             await Cache.RemoveByTagAsync(key, cancellationToken);
-            
+
             return created;
         }
         catch (DbUpdateException)
         {
             return Error.Collision;
         }
-        catch (Exception ex)
-        {
-            return ex;    
-        }
     }
 
     public async Task<Result> RemoveAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var key = GenerateKey(id.ToString());
-        
-        try
-        {
-            await RemoveFromResourceAsync(id, cancellationToken);
-            await Cache.RemoveByTagAsync(key, cancellationToken);
 
-            return Result.Success();
-        }
-        catch (Exception ex)
-        {
-            return ex;
-        }
+
+        await RemoveFromResourceAsync(id, cancellationToken);
+        await Cache.RemoveByTagAsync(key, cancellationToken);
+
+        return Result.Success();
     }
 }

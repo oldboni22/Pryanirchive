@@ -62,33 +62,26 @@ public class JwtService(IOptions<JwtServiceOptions> options, ILogger<JwtService>
             ValidateLifetime = false 
         };
 
-        try
+
+        var principal = handler.ValidateToken(expiredToken, validationParameters, out var securityToken);
+
+        if (securityToken is not JwtSecurityToken jwtToken ||
+            !jwtToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
         {
-            var principal = handler.ValidateToken(expiredToken, validationParameters, out var securityToken);
-
-            if (securityToken is not JwtSecurityToken jwtToken || 
-                !jwtToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
-            {
-                logger.LogTokenValidationFailed(new InvalidOperationException("Invalid token algorithm"));
-                return DomainErrors.InvalidAccessToken;
-            }
-            
-            var userIdClaim = principal.FindFirst(JwtRegisteredClaimNames.Sub);
-
-            if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
-            {
-                logger.LogTokenValidationFailed(new InvalidOperationException("Invalid user ID claim"));
-                return DomainErrors.InvalidAccessToken;
-            }
-            
-            logger.LogTokenValidationCompleted(userId);
-
-            return userId;
+            logger.LogTokenValidationFailed(new InvalidOperationException("Invalid token algorithm"));
+            return DomainErrors.InvalidAccessToken;
         }
-        catch (Exception ex)
+
+        var userIdClaim = principal.FindFirst(JwtRegisteredClaimNames.Sub);
+
+        if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
         {
-            logger.LogTokenValidationFailed(ex);
-            return ex;
+            logger.LogTokenValidationFailed(new InvalidOperationException("Invalid user ID claim"));
+            return DomainErrors.InvalidAccessToken;
         }
+
+        logger.LogTokenValidationCompleted(userId);
+
+        return userId;
     }
 }

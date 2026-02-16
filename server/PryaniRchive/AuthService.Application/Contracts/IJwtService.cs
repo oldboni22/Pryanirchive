@@ -1,3 +1,4 @@
+using System;
 using Common.ResultPattern;
 
 namespace AuthService.Application.Contracts;

@@ -15,24 +15,18 @@ public class UserAvatarClient(UserAvatarService.UserAvatarServiceClient client) 
             AvatarId = avatarId.Value,
         };
 
-        try
-        {
-            var result = await client.GetUserAvatarLinkAsync(request, cancellationToken: cancellationToken);
+        var result = await client.GetUserAvatarLinkAsync(request, cancellationToken: cancellationToken);
 
-            if (result is null)
-            {
-                return GRpcErrors.GRpcResponseEmpty;
-            }
-
-            return result.Link;
-        }
-        catch (Exception ex)
+        if (result is null)
         {
-            return ex;
+            return GRpcErrors.EmptyResponse;
         }
+
+        return result.Link;
     }
 
-    public async Task<Result<string>> GetUploadLinkAsync(UserAvatarId avatarId, string contentType, CancellationToken cancellationToken = default)
+    public async Task<Result<string>> GetUploadLinkAsync(
+        UserAvatarId avatarId, string contentType, CancellationToken cancellationToken = default)
     {
         var request = new UserAvatarUploadLinkRequest
         {
@@ -40,20 +34,13 @@ public class UserAvatarClient(UserAvatarService.UserAvatarServiceClient client) 
             ContentType = contentType
         };
 
-        try
-        {
-            var result = await client.GetUserAvatarUploadLinkAsync(request, cancellationToken: cancellationToken);
-            
-            if (result is null)
-            {
-                return GRpcErrors.GRpcResponseEmpty;
-            }
+        var result = await client.GetUserAvatarUploadLinkAsync(request, cancellationToken: cancellationToken);
 
-            return result.UploadLink;
-        }
-        catch(Exception ex)
+        if (result is null)
         {
-            return ex;
+            return GRpcErrors.EmptyResponse;
         }
+
+        return result.UploadLink;
     }
 }

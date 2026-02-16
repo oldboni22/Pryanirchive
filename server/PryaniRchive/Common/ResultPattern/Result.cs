@@ -1,5 +1,3 @@
-using System;
-
 namespace Common.ResultPattern;
 
 public class Result
@@ -26,8 +24,6 @@ public class Result
     public static Result<TValue> Failure<TValue>(Error error) => new(default, false, error);
 
     public static implicit operator Result(Error error) => Failure(error);
-    
-    public static implicit operator Result(Exception exception) => Failure(Error.Exception(exception));
 }
 
 public class Result<TValue> : Result
@@ -49,6 +45,4 @@ public class Result<TValue> : Result
     public static implicit operator Result<TValue>(TValue? value) => Success(value)!;
     
     public static implicit operator TValue (Result<TValue> result) => result.Value;
-    
-    public static implicit operator Result<TValue>(Exception exception) => Failure<TValue>(Error.Exception(exception));
 }
