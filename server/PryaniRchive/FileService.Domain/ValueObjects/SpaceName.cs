@@ -5,7 +5,7 @@ namespace FileService.Domain.ValueObjects;
 
 public sealed record SpaceName : EntityName
 {
-    public const ushort MaxNameLength = 60;
+    public const ushort MaxNameLength = 25;
 
     private SpaceName(string value) : base(value) { }
     

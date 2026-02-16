@@ -20,6 +20,6 @@ public class SpaceEntityConfig : IEntityTypeConfiguration<Space>
                 v => v.ToString(),
                 value => SpaceName.FromDatabase(value))
             .IsRequired()
-            .HasMaxLength(Space.MaxNameLength);
+            .HasMaxLength(SpaceName.MaxNameLength);
     }
 }
