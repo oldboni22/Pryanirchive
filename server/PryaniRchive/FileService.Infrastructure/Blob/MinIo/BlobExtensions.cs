@@ -1,3 +1,5 @@
+using System;
+using System.Threading.Tasks;
 using FileService.Application.Contracts.Blob;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,10 +12,10 @@ public static class BlobExtensions
     {
         public async Task EnsureBlobExists()
         {
-            var avatarService = app.Services.GetKeyedService<IBlobService>(MinIoBlobService.AvatarKey)
+            var avatarService = app.Services.GetKeyedService<IBlobService>(BlobDiKeys.AvatarKey)
                 ?? throw new NullReferenceException("Blob service not found.");
 
-            var fileService = app.Services.GetKeyedService<IBlobService>(MinIoBlobService.FileKey)
+            var fileService = app.Services.GetKeyedService<IBlobService>(BlobDiKeys.FileKey)
                                 ?? throw new NullReferenceException("Blob service not found.");
             
             var results = await Task.WhenAll(

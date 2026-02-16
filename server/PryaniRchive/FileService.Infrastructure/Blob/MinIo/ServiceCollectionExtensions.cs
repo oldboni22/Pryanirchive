@@ -1,3 +1,4 @@
+using System;
 using FileService.Application.Contracts.Blob;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,8 +29,8 @@ public static class ServiceCollectionExtensions
             });
 
             return services
-                .RegisterMinIoService(configuration, MinIoBlobService.AvatarKey, MinIoServiceOptions.AvatarSection)
-                .RegisterMinIoService(configuration, MinIoBlobService.FileKey, MinIoServiceOptions.FileSection);
+                .RegisterMinIoService(configuration, BlobDiKeys.AvatarKey, MinIoServiceOptions.AvatarSection)
+                .RegisterMinIoService(configuration, BlobDiKeys.FileKey, MinIoServiceOptions.FileSection);
         }
 
         private IServiceCollection RegisterMinIoService(IConfiguration configuration, object key, string configSection)

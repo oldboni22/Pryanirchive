@@ -22,6 +22,13 @@ public sealed class FolderEntityConfig : IEntityTypeConfiguration<Folder>
             .HasForeignKey(f => f.SpaceId)
             .OnDelete(DeleteBehavior.Restrict);
         
+        builder.Property(x => x.FullPath)
+            .HasConversion(
+                v =>  v.ToString(),
+                value => FolderPath.FromDatabase(value))
+            .IsRequired()
+            .HasMaxLength(FolderPath.MaxLength);
+        
         builder.Property(x => x.Name)
             .HasConversion(
                 v => v.ToString(),

@@ -1,13 +1,13 @@
+using System.Threading.Tasks;
 using Common.ResultPattern;
 using FileService.Application.Contracts.Blob;
-using FileService.Infrastructure.Blob.MinIo;
 using Grpc.Core;
 using GRpc.UserAvatar;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FileService.Infrastructure.GRpc;
 
-public class UserAvatarGRpcService([FromKeyedServices(MinIoBlobService.AvatarKey)] IBlobService blobService) 
+public class UserAvatarGRpcService([FromKeyedServices(BlobDiKeys.AvatarKey)] IBlobService blobService) 
     : UserAvatarService.UserAvatarServiceBase
 {
     private const long MaxAvatarSize = (long)(3.5 * 1024 * 1024);

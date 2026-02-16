@@ -15,11 +15,13 @@ public sealed class Folder : EntityBase, IEntityWithTimestamps
     
     public Guid? ParentFolderId { get; set; }
     
-    public Folder? Parent { get; set; }
+    public Folder? Parent { get; init; }
     
     public DateTime CreatedAt { get; set; }
     
     public DateTime UpdatedAt { get; set; }
     
     public IEnumerable<FileReference> Files { get; init; } = [];
+    
+    public required FolderPath FullPath { get; set; }
 }

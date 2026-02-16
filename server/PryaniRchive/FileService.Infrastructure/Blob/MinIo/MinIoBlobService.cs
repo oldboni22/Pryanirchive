@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Common.Logging;
 using Common.ResultPattern;
 using FileService.Application.Contracts.Blob;
@@ -22,10 +26,6 @@ public sealed class MinIoBlobService(
     MinIoServiceOptions options,
     ILogger<MinIoBlobService> logger) : IBlobService
 {
-    public const string AvatarKey = "Avatar";
-    
-    public const string FileKey = "File";
-    
     private readonly string _bucketName = options.BucketName;
 
     private readonly int _expirationSeconds = options.UrlExpireSeconds;
