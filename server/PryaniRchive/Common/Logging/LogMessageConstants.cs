@@ -13,9 +13,7 @@ public static class LogMessageConstants
     // Database Logging
     public const string DatabaseQueryStarted = "Executing database query: {QueryName} with parameters {Parameters}";
     public const string DatabaseQueryCompleted = "Database query {QueryName} completed";
-    public const string SlowDatabaseQuery = "Slow database query detected: {QueryName} took {ElapsedMs} ms"; // Keep for slow query? Or remove? User said "Remove all stopwatches". I'll remove it or rename it. "Slow query detected" implies timing. But user said "all". I'll assume standard completion logs. Accessing 'SlowDatabaseQuery' implies it's triggered by time. I'll leave SlowDatabaseQuery alone perhaps? No, "Remove all stopwatches". If I can't measure time, I can't detect slow queries. I should probably remove LogSlowDatabaseQuery usage or make it just "Query completed". 
-    // Actually, I'll modify Completed messages. LogSlowDatabaseQuery is a specific alert, I probably can't use it without stopwatch. I'll leave it in constants but won't use it (or user might want it removed). 
-    // Wait, the user said "Remove all stopwatches and elapsed time logging". So I should probably remove the param from Completed messages.
+    public const string SlowDatabaseQuery = "Slow database query detected: {QueryName} took {ElapsedMs} ms";  
     
     // gRPC Logging
     public const string GRpcCallStarted = "gRPC call to {Service}.{Method} started";

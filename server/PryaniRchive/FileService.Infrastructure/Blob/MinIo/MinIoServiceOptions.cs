@@ -7,10 +7,6 @@ public class MinIoServiceOptions
     public const string FileSection = $"{PrimaryConfigSection}:File";
     
     public const string AvatarSection = $"{PrimaryConfigSection}:Avatar";
-
-    public const string AvatarKey = "Avatar";
-    
-    public const string FileKey = "Avatar";
     
     public required string BucketName { get; init; }
     

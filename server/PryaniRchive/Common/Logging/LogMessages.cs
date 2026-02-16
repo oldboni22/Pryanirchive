@@ -2,10 +2,6 @@ using Microsoft.Extensions.Logging;
 
 namespace Common.Logging;
 
-/// <summary>
-/// High-performance logging messages using LoggerMessage source generation.
-/// These methods have zero allocation and minimal overhead.
-/// </summary>
 public static partial class LogMessages
 {
     // HTTP Request Logging

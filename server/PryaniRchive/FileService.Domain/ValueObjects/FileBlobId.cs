@@ -8,7 +8,7 @@ public record FileBlobId
     
     private const int ExtensionMaxLength = 10;
     
-    private const string Prefix = "avatar";
+    private const string Prefix = "file";
     
     public const int MaxLength = GuidLength + ExtensionMaxLength + 7;
     

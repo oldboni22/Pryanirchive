@@ -10,10 +10,10 @@ public static class BlobExtensions
     {
         public async Task EnsureBlobExists()
         {
-            var avatarService = app.Services.GetKeyedService<IBlobService>(AvatarMinioService.Key)
+            var avatarService = app.Services.GetKeyedService<IBlobService>(MinIoBlobService.AvatarKey)
                 ?? throw new NullReferenceException("Blob service not found.");
 
-            var fileService = app.Services.GetKeyedService<IBlobService>(FileMinioService.Key)
+            var fileService = app.Services.GetKeyedService<IBlobService>(MinIoBlobService.FileKey)
                                 ?? throw new NullReferenceException("Blob service not found.");
             
             var results = await Task.WhenAll(

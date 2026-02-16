@@ -10,11 +10,11 @@ public sealed class FileReference : EntityBase, IEntityWithTimestamps
 
     public Guid SpaceId { get; init; }
 
-    public Space Space { get; set; } = null!;
+    public Space Space { get; init; } = null!;
     
-    public Folder Folder { get; set; } = null!;
+    public Folder Folder { get; init; } = null!;
     
-    public long FileSize { get; set; }
+    public long FileSize { get; init; }
     
     public FileBlobId FileBlobId {get; init;}
     

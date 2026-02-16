@@ -7,9 +7,11 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace FileService.Infrastructure.GRpc;
 
-public class UserAvatarGRpcService([FromKeyedServices(AvatarMinioService.Key)] IBlobService blobService) 
+public class UserAvatarGRpcService([FromKeyedServices(MinIoBlobService.AvatarKey)] IBlobService blobService) 
     : UserAvatarService.UserAvatarServiceBase
 {
+    private const long MaxAvatarSize = (long)(3.5 * 1024 * 1024);
+    
     public override async Task<UserAvatarLinkResponse> GetUserAvatarLink(UserAvatarLinkRequest request, ServerCallContext context)
     {
         var result = await blobService.GetLoadLinkAsync(request.AvatarId, request.AvatarId, true, context.CancellationToken);
@@ -23,7 +25,7 @@ public class UserAvatarGRpcService([FromKeyedServices(AvatarMinioService.Key)] I
     public override async Task<UserAvatarUploadLinkResponse> GetUserAvatarUploadLink(UserAvatarUploadLinkRequest request, ServerCallContext context)
     {
         var result = await blobService.GetUploadLinkAsync(
-            request.AvatarId, request.ContentType, AvatarMinioService.MaxAvatarSize, context.CancellationToken);
+            request.AvatarId, request.ContentType, MaxAvatarSize, context.CancellationToken);
 
         if (!result.IsSuccess)
         {

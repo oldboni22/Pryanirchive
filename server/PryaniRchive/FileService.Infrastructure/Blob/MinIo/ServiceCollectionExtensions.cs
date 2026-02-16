@@ -1,6 +1,8 @@
 using FileService.Application.Contracts.Blob;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Protocols.Configuration;
 using Minio;
 
 namespace FileService.Infrastructure.Blob.MinIo;
@@ -24,15 +26,26 @@ public static class ServiceCollectionExtensions
                     .WithSSL(false)
                     .Build();
             });
-            
-            return 
-                services
-                    .Configure<MinIoServiceOptions>(
-                        MinIoServiceOptions.AvatarKey, configuration.GetSection(MinIoServiceOptions.AvatarSection))
-                    .Configure<MinIoServiceOptions>(
-                        MinIoServiceOptions.FileKey, configuration.GetSection(MinIoServiceOptions.FileSection))
-                    .AddKeyedSingleton<IBlobService, AvatarMinioService>(AvatarMinioService.Key)
-                    .AddKeyedSingleton<IBlobService, FileMinioService>(FileMinioService.Key);
+
+            return services
+                .RegisterMinIoService(configuration, MinIoBlobService.AvatarKey, MinIoServiceOptions.AvatarSection)
+                .RegisterMinIoService(configuration, MinIoBlobService.FileKey, MinIoServiceOptions.FileSection);
+        }
+
+        private IServiceCollection RegisterMinIoService(IConfiguration configuration, object key, string configSection)
+        {
+            return services.AddKeyedSingleton<IBlobService>(key, (sp, _) =>
+            {
+                var options = configuration.GetSection(configSection).Get<MinIoServiceOptions>() 
+                              ?? throw new InvalidConfigurationException();
+                
+                var client = sp.GetRequiredService<IMinioClient>() 
+                             ?? throw new InvalidOperationException();
+                var logger = sp.GetRequiredService<ILogger<MinIoBlobService>>() 
+                             ?? throw new InvalidOperationException();
+                
+                return new MinIoBlobService(client, options, logger);
+            });
         }
     }
 }
