@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Protocols.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace Common.RateLimiting;
 
@@ -22,10 +22,21 @@ public static class RateLimitExtensions
     {
         public IServiceCollection ConfigureRateLimiting(IConfiguration configuration)
         {
-            var rateLimitingOptions = configuration.GetSection(RateLimitingOptions.ConfigurationSection).Get<RateLimitingOptions>()
-                ?? throw new InvalidConfigurationException();
-
-            return services.AddRateLimiter(options => CreateRateLimiter(options, rateLimitingOptions));
+            return services.AddRateLimiter(options =>
+            {
+                options.OnRejected = CreateOnRejected();
+                
+                options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
+                {
+                    var endpoint = context.GetEndpoint();
+                    
+                    var hasSpecificPolicy = endpoint?.Metadata.GetMetadata<EnableRateLimitingAttribute>() != null;
+                    
+                    return hasSpecificPolicy
+                        ? RateLimitPartition.GetNoLimiter("Excluded global")
+                        : CreateGlobalRateLimiter(context);
+                });
+            });
         }
     }
     
@@ -57,11 +68,12 @@ public static class RateLimitExtensions
             logger.LogRateLimitExceeded(partitionKey);
         } 
     }
-
-
-    private static void CreateRateLimiter(RateLimiterOptions options, RateLimitingOptions rateLimitingOptions)
+    
+    private static RateLimitPartition<string> CreateGlobalRateLimiter(HttpContext context)
     {
-        options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
+        var rateLimitingOptions = context.RequestServices.GetRequiredService<IOptionsSnapshot<RateLimitingOptions>>().Value;
+        
+        return 
             RateLimitPartition.GetFixedWindowLimiter(
                 partitionKey: context.ExtractPartitionKey(),
                 key => new FixedWindowRateLimiterOptions
@@ -70,17 +82,17 @@ public static class RateLimitExtensions
                     PermitLimit = rateLimitingOptions.Limit,
                     QueueLimit = rateLimitingOptions.QueueLimit,
                     Window = TimeSpan.FromSeconds(rateLimitingOptions.RefreshSeconds)
-                }));
-
-        options.OnRejected = CreateOnRejected(rateLimitingOptions);
+                });
     }
 
-    private static Func<OnRejectedContext, CancellationToken, ValueTask> CreateOnRejected(RateLimitingOptions rateLimitingOptions)
+    private static Func<OnRejectedContext, CancellationToken, ValueTask> CreateOnRejected()
     {
         return async (context, cancellationToken) =>
         {
             var httpContext = context.HttpContext;
-
+            
+            var rateLimitingOptions = httpContext.RequestServices.GetRequiredService<IOptionsSnapshot<RateLimitingOptions>>().Value;
+            
             var partitionKey = httpContext.ExtractPartitionKey();
             httpContext.LogExceededLimit(partitionKey);
             
