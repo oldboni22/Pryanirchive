@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using Common.Logging;
 using Common.ResultPattern;
 using FileService.Application.Contracts.Blob;
@@ -33,13 +29,15 @@ public sealed class MinIoBlobService(
     public async Task<Result<FileUploadDto>> GetUploadLinkAsync(
         string fileBlobId, string contentType, long maxSize, CancellationToken cancellationToken = default)
     {
-        logger.LogBlobOperationStarted("GetUploadLink", fileBlobId, _bucketName);
+        const string methodName = "GetUploadLink";
+        
+        logger.LogBlobOperationStarted(methodName, fileBlobId, _bucketName);
 
         var policy = CreatePostPolicy(fileBlobId, contentType, maxSize);
 
         var (url, formData) = await client.PresignedPostPolicyAsync(policy);
 
-        logger.LogBlobOperationCompleted("GetUploadLink", fileBlobId);
+        logger.LogBlobOperationCompleted(methodName, fileBlobId);
 
         return new FileUploadDto(url!.ToString(), new Dictionary<string, string>(formData!));
     }
@@ -47,7 +45,9 @@ public sealed class MinIoBlobService(
     public async Task<Result<string>> GetLoadLinkAsync(
         string fileBlobId, string fileName, bool isInline, CancellationToken cancellationToken = default)
     {
-        logger.LogBlobOperationStarted("GetLink", fileBlobId, _bucketName);
+        const string methodName = "GetLink";
+        
+        logger.LogBlobOperationStarted(methodName, fileBlobId, _bucketName);
 
         var dispositionType = isInline ? Constants.InlineDisposition : Constants.AttachmentDisposition;
         var encodedName = Uri.EscapeDataString(fileName);
@@ -65,14 +65,16 @@ public sealed class MinIoBlobService(
 
         var link = await client.PresignedGetObjectAsync(args);
 
-        logger.LogBlobOperationCompleted("GetLink", fileBlobId);
+        logger.LogBlobOperationCompleted(methodName, fileBlobId);
 
         return link;
     }
 
     public async Task<Result> DeleteFileAsync(string fileBlobId, CancellationToken cancellationToken = default)
     {
-        logger.LogBlobOperationStarted("Delete", fileBlobId, _bucketName);
+        const string methodName = "Delete";
+        
+        logger.LogBlobOperationStarted(methodName, fileBlobId, _bucketName);
 
         var args = new RemoveObjectArgs()
             .WithBucket(_bucketName)
@@ -80,14 +82,16 @@ public sealed class MinIoBlobService(
 
         await client.RemoveObjectAsync(args, cancellationToken);
 
-        logger.LogBlobOperationCompleted("Delete", fileBlobId);
+        logger.LogBlobOperationCompleted(methodName, fileBlobId);
 
         return Result.Success();
     }
 
     public async Task<Result> EnsureStorageExists(CancellationToken cancellationToken = default)
     {
-        logger.LogBlobOperationStarted("EnsureStorageExists", _bucketName, _bucketName);
+        const string methodName = "EnsureStorageExists";
+        
+        logger.LogBlobOperationStarted(methodName, _bucketName, _bucketName);
 
         var existsArgs = new BucketExistsArgs().WithBucket(_bucketName);
         var bucketExists = await client.BucketExistsAsync(existsArgs, cancellationToken);
@@ -101,7 +105,7 @@ public sealed class MinIoBlobService(
         var createArgs = new MakeBucketArgs().WithBucket(_bucketName);
         await client.MakeBucketAsync(createArgs, cancellationToken);
 
-        logger.LogBlobOperationCompleted("EnsureStorageExists", _bucketName);
+        logger.LogBlobOperationCompleted(methodName, _bucketName);
 
         return Result.Success();
     }

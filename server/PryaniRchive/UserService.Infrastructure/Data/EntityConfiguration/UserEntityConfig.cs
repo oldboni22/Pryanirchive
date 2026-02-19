@@ -34,7 +34,7 @@ public sealed class UserEntityConfig : IEntityTypeConfiguration<User>
         builder.Property(e => e.AvatarId)
             .HasConversion(
                 v => v == null ? null : v.ToString(),
-                value => value == null ? null : UserAvatarId.FromDatabase(value))
+                value => UserAvatarId.FromDatabase(value))
             .HasMaxLength(UserAvatarId.MaxFieldLength)
             .IsFixedLength()
             .IsRequired(false);

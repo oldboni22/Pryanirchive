@@ -12,5 +12,5 @@ public class UploadOptions
 
     public const string AvatarOptionsKey = "AvatarOptions";
 
-    public int MaxMegabyteFileSize { get; init; } = 0;
+    public int MaxMegabyteFileSize { get; init; } = 5000;
 }

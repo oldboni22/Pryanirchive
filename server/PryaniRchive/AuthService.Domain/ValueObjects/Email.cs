@@ -13,7 +13,7 @@ public sealed record Email
 
     public static Result<Email> Create(string value)
     {
-        if (string.IsNullOrWhiteSpace(value) &&  value.Length > MaxLength)
+        if (string.IsNullOrWhiteSpace(value) ^ value.Length > MaxLength)
         {
             return Result.Failure<Email>(DomainErrors.InvalidEmail);
         }

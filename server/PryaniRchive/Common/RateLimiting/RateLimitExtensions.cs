@@ -19,7 +19,7 @@ public static class RateLimitExtensions
     private const string ForwardedHeaderKey = "X-Forwarded-For";
 
     private const string DefaultPartitionKey = "No-forwarded-for";
-
+    
     extension(IServiceCollection services)
     {
         public IServiceCollection ConfigureRateLimiting(IConfiguration configuration)
@@ -48,17 +48,6 @@ public static class RateLimitExtensions
     {
         private string ExtractPartitionKey()
         {
-            var headerContent = context.Request.Headers[ForwardedHeaderKey].ToString();
-
-            if (!string.IsNullOrWhiteSpace(headerContent))
-            {
-                var ip = headerContent.Split(',')[0].Trim();
-                if (!string.IsNullOrWhiteSpace(ip))
-                {
-                    return ip;
-                }
-            }
-
             var remoteIp = context.Connection.RemoteIpAddress?.ToString();
             return !string.IsNullOrEmpty(remoteIp)
                 ? remoteIp

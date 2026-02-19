@@ -1,9 +1,9 @@
-using System;
 using System.Net;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Protocols.Configuration;
 
 namespace Common.Kestrel;
 
@@ -29,7 +29,7 @@ public static class KestrelExtensions
                 
                 if (kestrelOptions.LocalNetworkIp is null)
                 {
-                    throw new NullReferenceException();
+                    throw new InvalidConfigurationException();
                 }
                 
                 options.Listen(IPAddress.Parse(kestrelOptions.LocalNetworkIp), kestrelOptions.GRpcPort, listenOptions =>
