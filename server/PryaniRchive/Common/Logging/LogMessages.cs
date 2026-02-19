@@ -7,6 +7,14 @@ public static partial class LogMessages
     // HTTP Request Logging
     
     [LoggerMessage(
+        EventId = 1000,
+        Level = LogLevel.Information,
+        Message = LogMessageConstants.RateLimitExceeded)]
+    public static partial void LogRateLimitExceeded(
+        this ILogger logger,
+        string partitionKey);
+    
+    [LoggerMessage(
         EventId = 1001,
         Level = LogLevel.Information,
         Message = LogMessageConstants.HttpRequestStarted)]

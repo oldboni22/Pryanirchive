@@ -5,6 +5,8 @@ namespace Common.Logging;
 /// </summary>
 public static class LogMessageConstants
 {
+    public const string RateLimitExceeded = "Rate limit exceeded for the partition key {PartitionKey}";
+    
     // HTTP Request Logging
     public const string HttpRequestStarted = "HTTP {Method} {Path} started";
     public const string HttpRequestCompleted = "HTTP {Method} {Path} completed with status {StatusCode}";
