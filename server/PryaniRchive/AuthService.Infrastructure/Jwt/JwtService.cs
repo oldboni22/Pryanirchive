@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
-namespace AuthService.Infrastructure.ApplicationImplementations.Jwt;
+namespace AuthService.Infrastructure.Jwt;
 
 public class JwtService(IOptions<JwtServiceOptions> options, ILogger<JwtService> logger) : IJwtService
 {
@@ -42,8 +42,9 @@ public class JwtService(IOptions<JwtServiceOptions> options, ILogger<JwtService>
 
         return new TokenPair(handler.WriteToken(accessToken), Guid.NewGuid().ToString("N"));
     }
-
-    public Result<Guid> ExtractUserIdFromExpiredToken(string expiredToken)
+    
+    //Left as a sample as for rn
+    private Result<Guid> ExtractUserIdFromExpiredToken(string expiredToken)
     {
         logger.LogTokenValidationStarted();
         
